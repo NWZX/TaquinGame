@@ -1,32 +1,53 @@
 #include "SDL.h"
+#include "TaquinBase.h"
 #include <stdio.h>
 
 int main(int argc, char* argv[])
 {
-	if (SDL_Init(SDL_INIT_VIDEO) != 0 )
-    {
-        fprintf(stdout,"Échec de l'initialisation de la SDL (%s)\n",SDL_GetError());
-        return -1;
-    }
+	int** plat = NULL;
+	plat = newPlat(4, 4, 0);
 
-	SDL_Window* window = SDL_CreateWindow
-	("TaquinGame", // window's title
-		SDL_WINDOWPOS_UNDEFINED,
-		SDL_WINDOWPOS_UNDEFINED, // coordinates on the screen, in pixels, of the window's upper left corner
-		640, 480, // window's length and height in pixels  
-		SDL_WINDOW_OPENGL);
+	int cursX = 0, cursY = 0;
+	int* cursX2 = NULL, * cursY2 = NULL;
 
-	if (window)
+	while (1)
 	{
-		SDL_Delay(3000); /* Attendre trois secondes, que l'utilisateur voie la fenêtre */
+		newScreen(cursX, cursY, cursX2, cursY2, plat, 4);
+		int result = interceptKey(&cursX, &cursY);
+		if (result == 1)
+		{
+			if (cursX2 == NULL && cursY2 == NULL)
+			{
+				cursX2 = malloc(sizeof(int));
+				cursY2 = malloc(sizeof(int));
+				if (cursX2 == NULL || cursY2 == NULL)
+				{
+					exit(0);
+				}
 
-		SDL_DestroyWindow(window);
+				*cursX2 = cursX;
+				*cursY2 = cursY;
+			}
+			else
+			{
+				validateMove(cursX, cursY, cursX2, cursY2, plat);
+				cursX2 = NULL;
+				cursY2 = NULL;
+			}
+		}
+		if (result == -1)
+		{
+			if (cursX2 == NULL)
+			{
+				free(cursX2);
+			}
+			if (cursY2 == NULL)
+			{
+				free(cursY2);
+			}
+			tab2D_free(plat, 4);
+			break;
+		}
 	}
-	else
-	{
-		fprintf(stderr, "Erreur de création de la fenêtre: %s\n", SDL_GetError());
-	}
-
-	SDL_Quit();
 	return 0;
 }
