@@ -1,5 +1,7 @@
 #pragma once
 
+#define _CRTDBG_MAP_ALLOC
+
 int** tab2D_init(int x, int y);
 void tab2D_free(int** tabXY, int x);
 int** newPlat(int sizeX, int sizeY, int random);

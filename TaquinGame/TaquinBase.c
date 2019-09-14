@@ -4,6 +4,8 @@
 #include <conio.h>
 #include <math.h>
 
+#include <crtdbg.h>
+
 int** tab2D_init(int x, int y)
 {
 	int** tabXY = NULL;
