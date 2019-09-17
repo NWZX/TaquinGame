@@ -23,12 +23,6 @@ SOFTWARE.
 */
 
 #include "Taquin_Game_UI.h"
-#include "TaquinBase.h"
-#include <SDL.h>
-#include <SDL_image.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
 
 Item** tab2D_initG(SDL_Renderer* render, int dim, int windowX, int windowY)
 {
@@ -112,38 +106,6 @@ int interceptKeyG(SDL_Event* even, int* cursX, int* cursY, int dim)
 		}
 	}
 	return 0;
-}
-
-void validateMoveG(int cursX, int cursY, int* cursX2, int* cursY2, int** plat, Item_text* text)
-{
-	if (cursX2 == NULL || cursY2 == NULL)
-		exit(1);
-
-	int test = plat[cursX][cursY] == 0 || plat[*cursX2][*cursY2] == 0;
-	SDL_Texture* tempT = NULL;
-
-	if (abs(cursX - *cursX2) == 1 && abs(cursY - *cursY2) == 0 && test)
-	{
-		int temp = plat[cursX][cursY];
-		plat[cursX][cursY] = plat[*cursX2][*cursY2];
-		plat[*cursX2][*cursY2] = temp;
-
-		tempT = text[*cursX2 * 4 + *cursY2].text;
-		text[*cursX2 * 4 + *cursY2].text = text[cursX * 4 + cursY].text;
-		text[cursX * 4 + cursY].text = tempT;
-
-		//Fix for non convervative REC
-	}
-	else if (abs(cursX - *cursX2) == 0 && abs(cursY - *cursY2) == 1 && test)
-	{
-		int temp = plat[cursX][cursY];
-		plat[cursX][cursY] = plat[*cursX2][*cursY2];
-		plat[*cursX2][*cursY2] = temp;
-
-		tempT = text[*cursX2 * 4 + *cursY2].text;
-		text[*cursX2 * 4 + *cursY2].text = text[cursX * 4 + cursY].text;
-		text[cursX * 4 + cursY].text = tempT;
-	}
 }
 
 Uint32 trick(Uint32 intervalle, void* parametre)
@@ -276,7 +238,7 @@ void newGameBoard(int boardDim, int screenSizeX, int screenSizeY, int rand, SDL_
 			}
 			else
 			{
-				validateMoveG(cursX, cursY, cursX2, cursY2, virtual_plat, text);
+				validateMove(cursX, cursY, cursX2, cursY2, virtual_plat, text);
 
 				free(cursX2);
 				free(cursY2);

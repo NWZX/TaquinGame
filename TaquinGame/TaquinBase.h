@@ -22,12 +22,35 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#include <SDL.h>
+#include <SDL_ttf.h>
+#include <SDL_image.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
+#include <crtdbg.h>
+
 #pragma once
 
 #define _CRTDBG_MAP_ALLOC
+
+typedef struct Item Item;
+struct Item
+{
+	SDL_Texture* texture;
+	SDL_Rect dest;
+};
+
+typedef struct Item_text Item_text;
+struct Item_text
+{
+	SDL_Texture* text;
+	SDL_Rect dest;
+};
 
 int** tab2D_init(int x, int y);
 int* tab2D_convert(int** tabXY, int dimSize);
 void tab2D_free(int** tabXY, int x);
 int** newPlat(int sizeX, int sizeY, int random);
-void validateMove(int cursX, int cursY, int* cursX2, int* cursY2, int** plat);
+void validateMove(int cursX, int cursY, int* cursX2, int* cursY2, int** plat, Item_text* text);

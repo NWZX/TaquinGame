@@ -23,12 +23,7 @@ SOFTWARE.
 */
 
 #include "TaquinBase.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <conio.h>
-#include <math.h>
 
-#include <crtdbg.h>
 
 int** tab2D_init(int x, int y)
 {
@@ -106,23 +101,34 @@ int** newPlat(int sizeX, int sizeY, int random)
 	return plat;
 }
 
-void validateMove(int cursX, int cursY, int* cursX2, int* cursY2, int** plat)
+void validateMove(int cursX, int cursY, int* cursX2, int* cursY2, int** plat, Item_text* text)
 {
 	if (cursX2 == NULL || cursY2 == NULL)
 		exit(1);
 
 	int test = plat[cursX][cursY] == 0 || plat[*cursX2][*cursY2] == 0;
+	SDL_Texture* tempT = NULL;
 
 	if (abs(cursX - *cursX2) == 1 && abs(cursY - *cursY2) == 0 && test)
 	{
 		int temp = plat[cursX][cursY];
 		plat[cursX][cursY] = plat[*cursX2][*cursY2];
 		plat[*cursX2][*cursY2] = temp;
+
+		tempT = text[*cursX2 * 4 + *cursY2].text;
+		text[*cursX2 * 4 + *cursY2].text = text[cursX * 4 + cursY].text;
+		text[cursX * 4 + cursY].text = tempT;
+
+		//Fix for non convervative REC
 	}
 	else if (abs(cursX - *cursX2) == 0 && abs(cursY - *cursY2) == 1 && test)
 	{
 		int temp = plat[cursX][cursY];
 		plat[cursX][cursY] = plat[*cursX2][*cursY2];
 		plat[*cursX2][*cursY2] = temp;
+
+		tempT = text[*cursX2 * 4 + *cursY2].text;
+		text[*cursX2 * 4 + *cursY2].text = text[cursX * 4 + cursY].text;
+		text[cursX * 4 + cursY].text = tempT;
 	}
 }

@@ -22,13 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "TaquinBase.h"
 #include "Taquin_Game_UI.h"
-#include <SDL.h>
-#include <stdio.h>
-#include <stdlib.h>
-
-#include <crtdbg.h>
 
 
 int main(int argc, char* argv[])

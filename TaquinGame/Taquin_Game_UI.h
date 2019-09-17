@@ -23,22 +23,7 @@ SOFTWARE.
 */
 
 #pragma once
-#include <SDL.h>
-#include <SDL_ttf.h>
 
-typedef struct Item Item;
-struct Item
-{
-	SDL_Texture* texture;
-	SDL_Rect dest;
-};
-
-typedef struct Item_text Item_text;
-struct Item_text
-{
-	SDL_Texture* text;
-	SDL_Rect dest;
-};
+#include "TaquinBase.h"
 
 void newGameBoard(int boardDim, int screenSizeX, int screenSizeY, int rand, SDL_Window* screen);
-void validateMoveG(int cursX, int cursY, int* cursX2, int* cursY2, int** plat, Item_text* text);
