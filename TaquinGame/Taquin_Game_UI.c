@@ -121,7 +121,6 @@ void validateMoveG(int cursX, int cursY, int* cursX2, int* cursY2, int** plat, I
 
 	int test = plat[cursX][cursY] == 0 || plat[*cursX2][*cursY2] == 0;
 	SDL_Texture* tempT = NULL;
-	SDL_Rect tempR;
 
 	if (abs(cursX - *cursX2) == 1 && abs(cursY - *cursY2) == 0 && test)
 	{
@@ -132,6 +131,8 @@ void validateMoveG(int cursX, int cursY, int* cursX2, int* cursY2, int** plat, I
 		tempT = text[*cursX2 * 4 + *cursY2].text;
 		text[*cursX2 * 4 + *cursY2].text = text[cursX * 4 + cursY].text;
 		text[cursX * 4 + cursY].text = tempT;
+
+		//Fix for non convervative REC
 	}
 	else if (abs(cursX - *cursX2) == 0 && abs(cursY - *cursY2) == 1 && test)
 	{
@@ -143,6 +144,14 @@ void validateMoveG(int cursX, int cursY, int* cursX2, int* cursY2, int** plat, I
 		text[*cursX2 * 4 + *cursY2].text = text[cursX * 4 + cursY].text;
 		text[cursX * 4 + cursY].text = tempT;
 	}
+}
+
+Uint32 trick(Uint32 intervalle, void* parametre)
+{
+	int* temps = parametre;
+	*temps += 1;
+	printf("Temps : %d:%d\n", *temps / 60, *temps % 60);
+	return intervalle;
 }
 
 void newGameBoard(int boardDim, int screenSizeX, int screenSizeY, int rand, SDL_Window* screen)
@@ -242,6 +251,12 @@ void newGameBoard(int boardDim, int screenSizeX, int screenSizeY, int rand, SDL_
 
 	free(vir_inf_plat);
 
+	int temps = 0;
+	SDL_TimerID timer = SDL_AddTimer(1000, trick, &temps);
+	SDL_Surface* text_s = NULL;
+	Item_text text_timer;
+	char buff_text[20];
+
 	while (1)
 	{
 		int result = interceptKeyG(&event, &cursX, &cursY, boardDim);
@@ -285,6 +300,17 @@ void newGameBoard(int boardDim, int screenSizeX, int screenSizeY, int rand, SDL_
 		SDL_RenderClear(render);
 		SDL_RenderCopy(render, board, NULL, &dest);
 
+		sprintf_s(buff_text, 20, "Temps : %d:%d", temps/60, temps%60);
+		text_s = TTF_RenderText_Solid(font, buff_text, color);
+		text_timer.dest.h = text_s->h;
+		text_timer.dest.w = text_s->w;
+		text_timer.dest.x = (screenSizeX / 2) - (text_s->w)/2;
+		text_timer.dest.y = 0;
+		text_timer.text = SDL_CreateTextureFromSurface(render, text_s);
+		SDL_FreeSurface(text_s);
+		SDL_RenderCopy(render, text_timer.text, NULL, &text_timer.dest);
+		SDL_DestroyTexture(text_timer.text);
+
 		hover_dest.x = plat[cursX][cursY].dest.x - ((hover_sprite->w - plat[cursX][cursY].dest.w) / 2);
 		hover_dest.y = plat[cursX][cursY].dest.y - ((hover_sprite->h - plat[cursX][cursY].dest.h) / 2);
 		SDL_RenderCopy(render, hover, NULL, &hover_dest);
@@ -307,6 +333,8 @@ void newGameBoard(int boardDim, int screenSizeX, int screenSizeY, int rand, SDL_
 		SDL_RenderPresent(render);
 		SDL_Delay(1); //Reduce CPU activity
 	}
+
+	SDL_RemoveTimer(timer);
 
 	for (int i = 0; i < (int)pow(boardDim, 2); i++)
 	{
