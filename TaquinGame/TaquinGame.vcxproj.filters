@@ -21,9 +21,15 @@
     <ClCompile Include="TaquinBase.c">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
+    <ClCompile Include="Taquin_Game_UI.c">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TaquinBase.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="Taquin_Game_UI.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
   </ItemGroup>

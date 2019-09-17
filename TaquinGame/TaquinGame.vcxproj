@@ -70,12 +70,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\Users\ruddy\source\repos\TaquinGame\SDL2\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\ruddy\source\repos\TaquinGame\SDL2\lib\x86;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\ruddy\source\repos\TaquinGame\SDL2\include;C:\Users\ruddy\source\repos\TaquinGame\SDL2_IMG\include;C:\Users\ruddy\source\repos\TaquinGame\SDL2_TTF\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\ruddy\source\repos\TaquinGame\SDL2\lib\x86;C:\Users\ruddy\source\repos\TaquinGame\SDL2_IMG\lib\x86;C:\Users\ruddy\source\repos\TaquinGame\SDL2_TTF\lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>C:\Users\ruddy\source\repos\TaquinGame\SDL2\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\ruddy\source\repos\TaquinGame\SDL2\lib\x86;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\ruddy\source\repos\TaquinGame\SDL2\include;C:\Users\ruddy\source\repos\TaquinGame\SDL2_IMG\include;C:\Users\ruddy\source\repos\TaquinGame\SDL2_TTF\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\ruddy\source\repos\TaquinGame\SDL2\lib\x86;C:\Users\ruddy\source\repos\TaquinGame\SDL2_IMG\lib\x86;C:\Users\ruddy\source\repos\TaquinGame\SDL2_TTF\lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -87,7 +87,7 @@
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -115,7 +115,7 @@
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -136,9 +136,11 @@
   <ItemGroup>
     <ClCompile Include="main.c" />
     <ClCompile Include="TaquinBase.c" />
+    <ClCompile Include="Taquin_Game_UI.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TaquinBase.h" />
+    <ClInclude Include="Taquin_Game_UI.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

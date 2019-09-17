@@ -1,3 +1,27 @@
+/*
+MIT License
+
+Copyright (c) 2019 NWZX
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
 #include "TaquinBase.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,6 +50,29 @@ int** tab2D_init(int x, int y)
 
 	return tabXY;
 }
+
+int* tab2D_convert(int** tabXY, int dimSize)
+{
+	int* temp = NULL;
+	temp = malloc((int)pow(dimSize, 2) * 8 * sizeof(int*));
+	if (tabXY == NULL)
+	{
+		exit(0);
+	}
+
+	int m = 0;
+	for (int i = 0; i < dimSize; i++)
+	{
+		for (int l = 0; l < dimSize; l++)
+		{
+			temp[m] = tabXY[i][l];
+			m++;
+		}
+	}
+
+	return temp;
+}
+
 
 void tab2D_free(int** tabXY, int x)
 {
@@ -119,7 +166,4 @@ void validateMove(int cursX, int cursY, int* cursX2, int* cursY2, int** plat)
 		plat[cursX][cursY] = plat[*cursX2][*cursY2];
 		plat[*cursX2][*cursY2] = temp;
 	}
-
-	free(cursX2);
-	free(cursY2);
 }
