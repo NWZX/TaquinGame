@@ -112,7 +112,7 @@ Uint32 trick(Uint32 intervalle, void* parametre)
 {
 	int* temps = parametre;
 	*temps += 1;
-	printf("Temps : %d:%d\n", *temps / 60, *temps % 60);
+	//printf("Temps : %d:%d\n", *temps / 60, *temps % 60);
 	return intervalle;
 }
 
@@ -122,7 +122,7 @@ void newGameBoard(int boardDim, int screenSizeX, int screenSizeY, int rand, SDL_
 	int* cursX2 = NULL, * cursY2 = NULL;
 
 	int** virtual_plat = NULL;
-	virtual_plat = newPlat(boardDim, boardDim, 0);
+	virtual_plat = newPlat(boardDim, boardDim, 1);
 
 	int* vir_inf_plat = NULL;
 
@@ -144,6 +144,8 @@ void newGameBoard(int boardDim, int screenSizeX, int screenSizeY, int rand, SDL_
 		exit(0);
 	}
 
+	//--------------------------------------------------------
+
 	SDL_Surface* board_sprite = NULL;
 	board_sprite = IMG_Load("res/back_fond.jpg");
 	if (board_sprite == NULL)
@@ -153,6 +155,8 @@ void newGameBoard(int boardDim, int screenSizeX, int screenSizeY, int rand, SDL_
 	SDL_FreeSurface(board_sprite);
 
 	SDL_Rect dest = { screenSizeX / 2 - board_sprite->w / 2, screenSizeY / 2 - board_sprite->h / 2, board_sprite->w, board_sprite->h };
+
+	//--------------------------------------------------
 
 	SDL_Surface* hover_sprite = NULL;
 	hover_sprite = IMG_Load("res/hover.png");
@@ -167,6 +171,8 @@ void newGameBoard(int boardDim, int screenSizeX, int screenSizeY, int rand, SDL_
 		hover_sprite->h
 	};
 
+	//-------------------------------------------------
+
 	SDL_Surface* select_sprite = NULL;
 	select_sprite = IMG_Load("res/select.png");
 	if (select_sprite == NULL)
@@ -177,6 +183,8 @@ void newGameBoard(int boardDim, int screenSizeX, int screenSizeY, int rand, SDL_
 	SDL_Rect select_dest;
 	select_dest.h = select_sprite->h;
 	select_dest.w = select_sprite->w;
+
+
 
 	Item_text* text = malloc((int)pow(boardDim, 2) *40* sizeof(Item_text));
 	SDL_Color color = { 0,0,0 };
@@ -197,7 +205,7 @@ void newGameBoard(int boardDim, int screenSizeX, int screenSizeY, int rand, SDL_
 	for (int i = 0; i < (int)pow(boardDim, 2); i++)
 	{
 		sprintf_s(buff, 4, "%d", vir_inf_plat[i]);
-		temp = TTF_RenderText_Solid(font, buff, color);
+		temp = TTF_RenderText_Blended(font, buff, color);
 		if (temp == NULL)
 		{
 			printf("Error : %s", TTF_GetError());
@@ -262,17 +270,6 @@ void newGameBoard(int boardDim, int screenSizeX, int screenSizeY, int rand, SDL_
 		SDL_RenderClear(render);
 		SDL_RenderCopy(render, board, NULL, &dest);
 
-		sprintf_s(buff_text, 20, "Temps : %d:%d", temps/60, temps%60);
-		text_s = TTF_RenderText_Solid(font, buff_text, color);
-		text_timer.dest.h = text_s->h;
-		text_timer.dest.w = text_s->w;
-		text_timer.dest.x = (screenSizeX / 2) - (text_s->w)/2;
-		text_timer.dest.y = 0;
-		text_timer.text = SDL_CreateTextureFromSurface(render, text_s);
-		SDL_FreeSurface(text_s);
-		SDL_RenderCopy(render, text_timer.text, NULL, &text_timer.dest);
-		SDL_DestroyTexture(text_timer.text);
-
 		hover_dest.x = plat[cursX][cursY].dest.x - ((hover_sprite->w - plat[cursX][cursY].dest.w) / 2);
 		hover_dest.y = plat[cursX][cursY].dest.y - ((hover_sprite->h - plat[cursX][cursY].dest.h) / 2);
 		SDL_RenderCopy(render, hover, NULL, &hover_dest);
@@ -292,6 +289,18 @@ void newGameBoard(int boardDim, int screenSizeX, int screenSizeY, int rand, SDL_
 				SDL_RenderCopy(render, text[i * boardDim + l].text, NULL, &text[i * boardDim +  l].dest);
 			}
 		}
+
+		sprintf_s(buff_text, 20, "Temps : %d:%d", temps / 60, temps % 60);
+		text_s = TTF_RenderText_Solid(font, buff_text, color);
+		text_timer.dest.h = text_s->h;
+		text_timer.dest.w = text_s->w;
+		text_timer.dest.x = (screenSizeX / 2) - (text_s->w) / 2;
+		text_timer.dest.y = 0;
+		text_timer.text = SDL_CreateTextureFromSurface(render, text_s);
+		SDL_FreeSurface(text_s);
+		SDL_RenderCopy(render, text_timer.text, NULL, &text_timer.dest);
+		SDL_DestroyTexture(text_timer.text);
+
 		SDL_RenderPresent(render);
 		SDL_Delay(1); //Reduce CPU activity
 	}

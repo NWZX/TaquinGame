@@ -28,6 +28,7 @@ SOFTWARE.
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <time.h>
 
 #include <crtdbg.h>
 
@@ -49,8 +50,10 @@ struct Item_text
 	SDL_Rect dest;
 };
 
+int randO(int min, int max);
 int** tab2D_init(int x, int y);
 int* tab2D_convert(int** tabXY, int dimSize);
 void tab2D_free(int** tabXY, int x);
 int** newPlat(int sizeX, int sizeY, int random);
 void validateMove(int cursX, int cursY, int* cursX2, int* cursY2, int** plat, Item_text* text);
+int checkWin(int** plat, int dim);

@@ -25,6 +25,12 @@ SOFTWARE.
 #include "TaquinBase.h"
 
 
+
+int randO(int min, int max)
+{
+	return rand() % (max - min) + min;
+}
+
 int** tab2D_init(int x, int y)
 {
 	int** tabXY = NULL;
@@ -85,6 +91,30 @@ int** newPlat(int sizeX, int sizeY, int random)
 
 	if (random)
 	{
+		int rand1 = 0;
+		int rand2 = 0;
+		int temp = 0;
+
+		for (int i = 0; i < sizeX; i++)
+		{
+			for (int l = 0; l < sizeY; l++)
+			{
+				plat[i][l] = cont;
+				cont++;
+			}
+		}
+
+		for (int i = 0; i < sizeX; i++)
+		{
+			for (int l = 0; l < sizeY; l++)
+			{
+				rand1 = randO(1, (sizeX * sizeY));
+				rand2 = randO(1, (sizeX * sizeY));
+				temp = plat[rand1 / sizeY][rand1 % sizeX];
+				plat[rand1/sizeY][rand1%sizeX] = plat[rand2/sizeY][rand2%sizeX];
+				plat[rand2 / sizeY][rand2 % sizeX] = temp;
+			}
+		}
 	}
 	else
 	{
@@ -132,3 +162,19 @@ void validateMove(int cursX, int cursY, int* cursX2, int* cursY2, int** plat, It
 		text[cursX * 4 + cursY].text = tempT;
 	}
 }
+
+//int checkWin(int** plat, int dim)
+//{
+//	for (int i = 0; i < pow(dim, 2); i++)
+//	{
+//		if (i != pow(dim, 2) - 1)
+//			if (plat[i / dim][i % dim] != i)
+//				return 0;
+//			else
+//				return 1;
+//		else
+//
+//
+//			
+//	}
+//}
