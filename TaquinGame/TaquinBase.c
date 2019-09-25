@@ -56,7 +56,7 @@ int* tab2D_convert(int** tabXY, int dimSize)
 {
 	int* temp = NULL;
 	temp = malloc((int)pow(dimSize, 2) * 8 * sizeof(int*));
-	if (tabXY == NULL)
+	if (temp == NULL)
 	{
 		exit(0);
 	}
@@ -73,7 +73,6 @@ int* tab2D_convert(int** tabXY, int dimSize)
 
 	return temp;
 }
-
 
 void tab2D_free(int** tabXY, int x)
 {
@@ -131,13 +130,14 @@ int** newPlat(int sizeX, int sizeY, int random)
 	return plat;
 }
 
-void validateMove(int cursX, int cursY, int* cursX2, int* cursY2, int** plat, Item_text* text)
+void validateMove(int cursX, int cursY, int* cursX2, int* cursY2, int** plat, Item_text* text, Item** surface, int dim)
 {
 	if (cursX2 == NULL || cursY2 == NULL)
 		exit(1);
 
 	int test = plat[cursX][cursY] == 0 || plat[*cursX2][*cursY2] == 0;
 	SDL_Texture* tempT = NULL;
+	int tempH = 0, tempW = 0;
 
 	if (abs(cursX - *cursX2) == 1 && abs(cursY - *cursY2) == 0 && test)
 	{
@@ -145,9 +145,23 @@ void validateMove(int cursX, int cursY, int* cursX2, int* cursY2, int** plat, It
 		plat[cursX][cursY] = plat[*cursX2][*cursY2];
 		plat[*cursX2][*cursY2] = temp;
 
-		tempT = text[*cursX2 * 4 + *cursY2].text;
-		text[*cursX2 * 4 + *cursY2].text = text[cursX * 4 + cursY].text;
-		text[cursX * 4 + cursY].text = tempT;
+		tempT = text[*cursX2 * dim + *cursY2].text;
+		text[*cursX2 * dim + *cursY2].text = text[cursX * dim + cursY].text;
+		text[cursX * dim + cursY].text = tempT;
+
+		tempH = text[*cursX2 * dim + *cursY2].dest.h;
+		text[*cursX2 * dim + *cursY2].dest.h = text[cursX * dim + cursY].dest.h;
+		text[cursX * dim + cursY].dest.h = tempH;
+
+		tempW = text[*cursX2 * dim + *cursY2].dest.w;
+		text[*cursX2 * dim + *cursY2].dest.w = text[cursX * dim + cursY].dest.w;
+		text[cursX * dim + cursY].dest.w = tempW;
+
+		text[cursX * dim + cursY].dest.x = (int)(surface[cursX][cursY].dest.x + (surface[cursX][cursY].dest.w / 2) - (text[cursX * dim + cursY].dest.w / 2));
+		text[cursX * dim + cursY].dest.y = (int)(surface[cursX][cursY].dest.y + (surface[cursX][cursY].dest.h / 2) - (text[cursX * dim + cursY].dest.h / 2));
+
+		text[*cursX2 * dim + *cursY2].dest.x = (int)(surface[*cursX2][*cursY2].dest.x + (surface[*cursX2][*cursY2].dest.w / 2) - (text[*cursX2 * dim + *cursY2].dest.w / 2));
+		text[*cursX2 * dim + *cursY2].dest.y = (int)(surface[*cursX2][*cursY2].dest.y + (surface[*cursX2][*cursY2].dest.h / 2) - (text[*cursX2 * dim + *cursY2].dest.h / 2));
 
 		//Fix for non convervative REC
 	}
@@ -157,24 +171,41 @@ void validateMove(int cursX, int cursY, int* cursX2, int* cursY2, int** plat, It
 		plat[cursX][cursY] = plat[*cursX2][*cursY2];
 		plat[*cursX2][*cursY2] = temp;
 
-		tempT = text[*cursX2 * 4 + *cursY2].text;
-		text[*cursX2 * 4 + *cursY2].text = text[cursX * 4 + cursY].text;
-		text[cursX * 4 + cursY].text = tempT;
+		tempT = text[*cursX2 * dim + *cursY2].text;
+		text[*cursX2 * dim + *cursY2].text = text[cursX * dim + cursY].text;
+		text[cursX * dim + cursY].text = tempT;
+
+		tempH = text[*cursX2 * dim + *cursY2].dest.h;
+		text[*cursX2 * dim + *cursY2].dest.h = text[cursX * dim + cursY].dest.h;
+		text[cursX * dim + cursY].dest.h = tempH;
+
+		tempW = text[*cursX2 * dim + *cursY2].dest.w;
+		text[*cursX2 * dim + *cursY2].dest.w = text[cursX * dim + cursY].dest.w;
+		text[cursX * dim + cursY].dest.w = tempW;
+
+		text[cursX * dim + cursY].dest.x = (int)(surface[cursX][cursY].dest.x + (surface[cursX][cursY].dest.w / 2) - (text[cursX * dim + cursY].dest.w / 2));
+		text[cursX * dim + cursY].dest.y = (int)(surface[cursX][cursY].dest.y + (surface[cursX][cursY].dest.h / 2) - (text[cursX * dim + cursY].dest.h / 2));
+
+		text[*cursX2 * dim + *cursY2].dest.x = (int)(surface[*cursX2][*cursY2].dest.x + (surface[*cursX2][*cursY2].dest.w / 2) - (text[*cursX2 * dim + *cursY2].dest.w / 2));
+		text[*cursX2 * dim + *cursY2].dest.y = (int)(surface[*cursX2][*cursY2].dest.y + (surface[*cursX2][*cursY2].dest.h / 2) - (text[*cursX2 * dim + *cursY2].dest.h / 2));
 	}
 }
 
-//int checkWin(int** plat, int dim)
-//{
-//	for (int i = 0; i < pow(dim, 2); i++)
-//	{
-//		if (i != pow(dim, 2) - 1)
-//			if (plat[i / dim][i % dim] != i)
-//				return 0;
-//			else
-//				return 1;
-//		else
-//
-//
-//			
-//	}
-//}
+int checkWin(int** plat, int dim)
+{
+	int** checkTab = newPlat(dim, dim, 0);
+	for (int i = 0; i < dim; i++)
+	{
+		for (int l = 0; l < dim; l++)
+		{
+			if (plat[i][l] == checkTab[i][l])
+			{
+				tab2D_free(checkTab, dim);
+				return 0;
+			}
+		}
+	}
+
+	tab2D_free(checkTab, dim);
+	return 1;
+}

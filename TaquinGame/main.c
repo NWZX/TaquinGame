@@ -31,15 +31,27 @@ int main(int argc, char* argv[])
 
 	srand(time(NULL));
 
+	//Init SDL
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0)
 	{
 		fprintf(stdout, "Échec de l'initialisation de la SDL (%s)\n", SDL_GetError());
 		return -1;
 	}
+
+	//Init SDL_TTF
 	if (TTF_Init() < 0) {
 		exit(0);
 	}
 
+	//Init SDL_MIXER
+	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 1024) == -1) //Initialisation de l'API Mixer
+	{
+		printf("%s", Mix_GetError());
+	}
+	Mix_AllocateChannels(8); //Allocate 8 chanel
+	Mix_Volume(1, MIX_MAX_VOLUME / 2); //Mettre à mi-volume le post 1
+
+	//Make a new window
 	SDL_Window* pWindow = NULL;
 	pWindow = SDL_CreateWindow("TaquinGame", SDL_WINDOWPOS_UNDEFINED,
 		SDL_WINDOWPOS_UNDEFINED,
@@ -54,6 +66,7 @@ int main(int argc, char* argv[])
 		SDL_DestroyWindow(pWindow);
 	}
 
+	Mix_CloseAudio();
 	TTF_Quit();
 	SDL_Quit();
 	return 0;
