@@ -71,11 +71,19 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>C:\Users\ruddy\source\repos\TaquinGame\SDL2\include;C:\Users\ruddy\source\repos\TaquinGame\SDL2_IMG\include;C:\Users\ruddy\source\repos\TaquinGame\SDL2_TTF\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\ruddy\source\repos\TaquinGame\SDL2\lib\x86;C:\Users\ruddy\source\repos\TaquinGame\SDL2_IMG\lib\x86;C:\Users\ruddy\source\repos\TaquinGame\SDL2_TTF\lib\x86;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\Users\Xx-Rastapopoulos-xX\source\repos\TaquinGame\SDL2_MIX\lib\x64;C:\Users\ruddy\source\repos\TaquinGame\SDL2\lib\x64;C:\Users\ruddy\source\repos\TaquinGame\SDL2_IMG\lib\x64;C:\Users\ruddy\source\repos\TaquinGame\SDL2_TTF\lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>C:\Users\ruddy\source\repos\TaquinGame\SDL2\include;C:\Users\ruddy\source\repos\TaquinGame\SDL2_IMG\include;C:\Users\ruddy\source\repos\TaquinGame\SDL2_TTF\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\ruddy\source\repos\TaquinGame\SDL2\lib\x86;C:\Users\ruddy\source\repos\TaquinGame\SDL2_IMG\lib\x86;C:\Users\ruddy\source\repos\TaquinGame\SDL2_TTF\lib\x86;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\Users\Xx-Rastapopoulos-xX\source\repos\TaquinGame\SDL2_MIX\lib\x64;C:\Users\ruddy\source\repos\TaquinGame\SDL2\lib\x64;C:\Users\ruddy\source\repos\TaquinGame\SDL2_IMG\lib\x64;C:\Users\ruddy\source\repos\TaquinGame\SDL2_TTF\lib\x64;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>C:\Users\Xx-Rastapopoulos-xX\source\repos\TaquinGame\SDL2_TTF\include;C:\Users\Xx-Rastapopoulos-xX\source\repos\TaquinGame\SDL2_MIX\include;C:\Users\Xx-Rastapopoulos-xX\source\repos\TaquinGame\SDL2_IMG\include;C:\Users\Xx-Rastapopoulos-xX\source\repos\TaquinGame\SDL2\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Xx-Rastapopoulos-xX\source\repos\TaquinGame\SDL2_IMG\lib\x64;C:\Users\Xx-Rastapopoulos-xX\source\repos\TaquinGame\SDL2_TTF\lib\x64;C:\Users\Xx-Rastapopoulos-xX\source\repos\TaquinGame\SDL2_MIX\lib\x64;C:\Users\Xx-Rastapopoulos-xX\source\repos\TaquinGame\SDL2\lib\x64;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>C:\Users\Xx-Rastapopoulos-xX\source\repos\TaquinGame\SDL2_TTF\include;C:\Users\Xx-Rastapopoulos-xX\source\repos\TaquinGame\SDL2_MIX\include;C:\Users\Xx-Rastapopoulos-xX\source\repos\TaquinGame\SDL2_IMG\include;C:\Users\Xx-Rastapopoulos-xX\source\repos\TaquinGame\SDL2\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Xx-Rastapopoulos-xX\source\repos\TaquinGame\SDL2_IMG\lib\x64;C:\Users\Xx-Rastapopoulos-xX\source\repos\TaquinGame\SDL2_TTF\lib\x64;C:\Users\Xx-Rastapopoulos-xX\source\repos\TaquinGame\SDL2_MIX\lib\x64;C:\Users\Xx-Rastapopoulos-xX\source\repos\TaquinGame\SDL2\lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -99,6 +107,7 @@
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;SDL2_mixer.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -131,6 +140,7 @@
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;SDL2_mixer.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
