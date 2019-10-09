@@ -104,22 +104,22 @@ int interceptKeyG(SDL_Event* even, int* cursX, int* cursY, int dim)
 			else if (even->key.keysym.sym == SDLK_UP && *cursX > 0)
 			{
 				*cursX -= 1;
-				Mix_PlayChannel(1, move, 0);
+				Mix_PlayChannel(-1, move, 0);
 			}
 			else if (even->key.keysym.sym == SDLK_DOWN && *cursX < dim-1)
 			{
 				*cursX += 1;
-				Mix_PlayChannel(1, move, 0);
+				Mix_PlayChannel(-1, move, 0);
 			}
 			else if (even->key.keysym.sym == SDLK_RIGHT && *cursY < dim-1)
 			{
 				*cursY += 1;
-				Mix_PlayChannel(1, move, 0);
+				Mix_PlayChannel(-1, move, 0);
 			}
 			else if (even->key.keysym.sym == SDLK_LEFT && *cursY > 0)
 			{
 				*cursY -= 1;
-				Mix_PlayChannel(1, move, 0);
+				Mix_PlayChannel(-1, move, 0);
 			}
 			else if (even->key.keysym.sym == SDLK_RETURN)
 			{

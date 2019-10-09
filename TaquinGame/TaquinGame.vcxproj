@@ -70,8 +70,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\Users\ruddy\source\repos\TaquinGame\SDL2_MIX\include;C:\Users\Xx-Rastapopoulos-xX\source\repos\TaquinGame\SDL2\include;C:\Users\ruddy\source\repos\TaquinGame\SDL2_IMG\include;C:\Users\ruddy\source\repos\TaquinGame\SDL2_TTF\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\ruddy\source\repos\TaquinGame\SDL2_MIX\lib\x86;C:\Users\Xx-Rastapopoulos-xX\source\repos\TaquinGame\SDL2\lib\x86;C:\Users\ruddy\source\repos\TaquinGame\SDL2_IMG\lib\x86;C:\Users\ruddy\source\repos\TaquinGame\SDL2_TTF\lib\x86;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\SDL\SDL2_MIX\include;C:\SDL\SDL2\include;C:\SDL\SDL2_IMG\include;C:\SDL\SDL2_TTF\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\SDL\SDL2_MIX\lib\x86;C:\SDL\SDL2\lib\x86;C:\SDL\SDL2_IMG\lib\x86;C:\SDL\SDL2_TTF\lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>C:\SDL\SDL2_MIX\include;C:\SDL\SDL2\include;C:\SDL\SDL2_IMG\include;C:\SDL\SDL2_TTF\include;$(IncludePath)</IncludePath>
