@@ -43,14 +43,16 @@ int main(int argc, char* argv[])
 		exit(0);
 	}
 
-	//Init SDL_MIXER
-	Mix_Init(MIX_INIT_MP3);
 	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 1024) == -1) //Initialisation de l'API Mixer
 	{
 		printf("%s", Mix_GetError());
 	}
-	Mix_AllocateChannels(8); //Allocate 8 chanel
-	Mix_Volume(1, MIX_MAX_VOLUME); //Mettre à mi-volume le post 1
+	Mix_AllocateChannels(32);
+	Mix_Volume(-1, 128);
+
+	Mix_Music* musique;
+	musique = Mix_LoadMUS("res/musique.mp3");
+	Mix_PlayMusic(musique, -1);
 
 	//Make a new window
 	SDL_Window* pWindow = NULL;
@@ -67,8 +69,8 @@ int main(int argc, char* argv[])
 		SDL_DestroyWindow(pWindow);
 	}
 
+	Mix_FreeMusic(musique);
 	Mix_CloseAudio();
-	Mix_Quit();
 	TTF_Quit();
 	SDL_Quit();
 	return 0;

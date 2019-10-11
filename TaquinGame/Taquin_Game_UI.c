@@ -24,6 +24,7 @@ SOFTWARE.
 
 #include "Taquin_Game_UI.h"
 
+//Function for generate a new 2D tab of Item
 Item** tab2D_initG(SDL_Renderer* render, int dim, int windowX, int windowY)
 {
 	Item** items = NULL;
@@ -69,6 +70,7 @@ Item** tab2D_initG(SDL_Renderer* render, int dim, int windowX, int windowY)
 	return items;
 }
 
+//Function for delete the 2D tab of Item
 void tab2D_freeG(Item** items, int dim)
 {
 	for (int i = 0; i < dim; i++)
@@ -82,7 +84,8 @@ void tab2D_freeG(Item** items, int dim)
 	free(items);
 }
 
-int interceptKeyG(SDL_Event* even, int* cursX, int* cursY, int dim)
+//This function check and process the action if the player press a key
+int interceptKeyG(Mix_Chunk* move, SDL_Event* even, int* cursX, int* cursY, int dim)
 {
 	if (SDL_PollEvent(even))
 	{
@@ -92,19 +95,15 @@ int interceptKeyG(SDL_Event* even, int* cursX, int* cursY, int dim)
 		}
 		if (even->type == SDL_KEYUP)
 		{
-			Mix_Chunk* move;
-			move = Mix_LoadWAV("res/fx.wav");
-			Mix_VolumeChunk(move, MIX_MAX_VOLUME);
-
 			if (even->key.keysym.sym == SDLK_ESCAPE)
 			{
-				Mix_FreeChunk(move);
 				return -1;
 			}
 			else if (even->key.keysym.sym == SDLK_UP && *cursX > 0)
 			{
 				*cursX -= 1;
 				Mix_PlayChannel(-1, move, 0);
+				
 			}
 			else if (even->key.keysym.sym == SDLK_DOWN && *cursX < dim-1)
 			{
@@ -121,12 +120,10 @@ int interceptKeyG(SDL_Event* even, int* cursX, int* cursY, int dim)
 				*cursY -= 1;
 				Mix_PlayChannel(-1, move, 0);
 			}
-			else if (even->key.keysym.sym == SDLK_RETURN)
+			else
 			{
-				Mix_FreeChunk(move);
 				return 1;
 			}
-			Mix_FreeChunk(move);
 		}
 	}
 	return 0;
@@ -143,8 +140,9 @@ Uint32 trick(Uint32 intervalle, void* parametre)
 void newGameBoard(int boardDim, int screenSizeX, int screenSizeY, int rand, SDL_Window* screen)
 {
 	int cursX = 0, cursY = 0;
-	int* cursX2 = NULL, * cursY2 = NULL;
+	int cursX2 = 0, cursY2 = 0;
 
+	//Initiate window
 	//-------------------------------------------------------
 
 	SDL_Renderer* render = NULL;
@@ -165,6 +163,7 @@ void newGameBoard(int boardDim, int screenSizeX, int screenSizeY, int rand, SDL_
 		exit(0);
 	}
 
+	// Make board texture
 	//--------------------------------------------------------
 
 	SDL_Surface* board_sprite = NULL;
@@ -177,7 +176,8 @@ void newGameBoard(int boardDim, int screenSizeX, int screenSizeY, int rand, SDL_
 
 	SDL_Rect dest = { screenSizeX / 2 - board_sprite->w / 2, screenSizeY / 2 - board_sprite->h / 2, board_sprite->w, board_sprite->h };
 
-	//--------------------------------------------------
+	//Make hover texture
+	//-------------------------------------------------
 
 	SDL_Surface* hover_sprite = NULL;
 	hover_sprite = IMG_Load("res/hover.png");
@@ -193,6 +193,7 @@ void newGameBoard(int boardDim, int screenSizeX, int screenSizeY, int rand, SDL_
 	};
 	SDL_FreeSurface(hover_sprite);
 
+	//Make select texture
 	//-------------------------------------------------
 
 	SDL_Surface* select_sprite = NULL;
@@ -206,7 +207,15 @@ void newGameBoard(int boardDim, int screenSizeX, int screenSizeY, int rand, SDL_
 	select_dest.w = select_sprite->w;
 	SDL_FreeSurface(select_sprite);
 
-	//--------------------------------------------------------
+	//------------------------------
+	Mix_Chunk* move = NULL;
+	move = Mix_LoadWAV("res/move.wav");
+
+	Mix_Chunk* win = NULL;
+	win = Mix_LoadWAV("res/win.wav");
+
+	//Make text texture
+	//--------------------------------------------------
 
 	Item_text* text = malloc((int)pow(boardDim, 2) *40* sizeof(Item_text));
 	SDL_Color color = { 0,0,0 };
@@ -255,42 +264,21 @@ void newGameBoard(int boardDim, int screenSizeX, int screenSizeY, int rand, SDL_
 
 	while (1)
 	{
-		int result = interceptKeyG(&event, &cursX, &cursY, boardDim);
-		if (result == 1)
+		int result = interceptKeyG(move, &event, &cursX, &cursY, boardDim);
+		if (result == 0)
 		{
-			if (cursX2 == NULL && cursY2 == NULL)
+			validateMove(cursX, cursY, cursX2, cursY2, virtual_plat, text, plat, boardDim);
+			if (checkWin(virtual_plat, boardDim) == 0)
 			{
-				cursX2 = malloc(sizeof(int));
-				cursY2 = malloc(sizeof(int));
-				if (cursX2 == NULL || cursY2 == NULL)
-				{
-					exit(0);
-				}
-
-				*cursX2 = cursX;
-				*cursY2 = cursY;
+				Mix_PlayChannel(-1, win, 0);
+				break;
 			}
-			else
-			{
-				validateMove(cursX, cursY, cursX2, cursY2, virtual_plat, text, plat, boardDim);
-				checkWin(virtual_plat, boardDim);
 
-				free(cursX2);
-				free(cursY2);
-				cursX2 = NULL;
-				cursY2 = NULL;
-			}
+			cursX2 = cursX;
+			cursY2 = cursY;
 		}
-		if (result == -1)
+		else if (result == -1)
 		{
-			if (cursX2 == NULL)
-			{
-				free(cursX2);
-			}
-			if (cursY2 == NULL)
-			{
-				free(cursY2);
-			}
 			break;
 		}
 
@@ -301,12 +289,12 @@ void newGameBoard(int boardDim, int screenSizeX, int screenSizeY, int rand, SDL_
 		hover_dest.y = plat[cursX][cursY].dest.y - ((hover_dest.h - plat[cursX][cursY].dest.h) / 2);
 		SDL_RenderCopy(render, hover, NULL, &hover_dest);
 
-		if (cursX2 != NULL && cursY2 != NULL)
-		{
-			select_dest.x = plat[*cursX2][*cursY2].dest.x - ((select_dest.w - plat[*cursX2][*cursY2].dest.w) / 2);
-			select_dest.y = plat[*cursX2][*cursY2].dest.y - ((select_dest.h - plat[*cursX2][*cursY2].dest.h) / 2);
-			SDL_RenderCopy(render, select, NULL, &select_dest);
-		}
+		//if (cursX2 != NULL && cursY2 != NULL)
+		//{
+		//	select_dest.x = plat[cursX2][cursY2].dest.x - ((select_dest.w - plat[cursX2][cursY2].dest.w) / 2);
+		//	select_dest.y = plat[cursX2][cursY2].dest.y - ((select_dest.h - plat[cursX2][cursY2].dest.h) / 2);
+		//	SDL_RenderCopy(render, select, NULL, &select_dest);
+		//}
 
 		for (int i = 0; i < boardDim; i++)
 		{
@@ -332,6 +320,8 @@ void newGameBoard(int boardDim, int screenSizeX, int screenSizeY, int rand, SDL_
 		SDL_Delay(1); //Reduce CPU activity
 	}
 
+	Mix_FreeChunk(move);
+	Mix_FreeChunk(win);
 	tab2D_freeG(plat, boardDim);
 
 	Mix_HaltChannel(-1);
@@ -347,8 +337,8 @@ void newGameBoard(int boardDim, int screenSizeX, int screenSizeY, int rand, SDL_
 	tab2D_free(virtual_plat, boardDim);
 	free(text);
 
-	SDL_DestroyTexture(board); // Libération de la mémoire associée à la texture
+	SDL_DestroyTexture(board); // Destroy texture
 
-	SDL_DestroyRenderer(render);
+	SDL_DestroyRenderer(render); //
 
 }

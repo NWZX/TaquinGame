@@ -25,16 +25,17 @@ SOFTWARE.
 #include "TaquinBase.h"
 
 
-
+//Function for generate random int value 
 int randO(int min, int max)
 {
 	return rand() % (max - min) + min;
 }
 
+//Function for generate a new 2D tab of int
 int** tab2D_init(int x, int y)
 {
 	int** tabXY = NULL;
-	tabXY = malloc(x * 8 * sizeof(int*));
+	tabXY = malloc(x * sizeof(int*));
 	if (tabXY == NULL)
 	{
 		exit(0);
@@ -42,7 +43,7 @@ int** tab2D_init(int x, int y)
 
 	for (int i = 0; i < x; i++)
 	{
-		tabXY[i] = malloc(y * sizeof(int));
+		tabXY[i] = malloc(y * 8 * sizeof(int));
 		if (tabXY[i] == NULL)
 		{
 			exit(0);
@@ -52,6 +53,7 @@ int** tab2D_init(int x, int y)
 	return tabXY;
 }
 
+//Fuction for convert 2D tab to 1D tab
 int* tab2D_convert(int** tabXY, int dimSize)
 {
 	int* temp = NULL;
@@ -74,6 +76,7 @@ int* tab2D_convert(int** tabXY, int dimSize)
 	return temp;
 }
 
+//Function for delete the 2D tab int
 void tab2D_free(int** tabXY, int x)
 {
 	for (int i = 0; i < x; i++)
@@ -83,6 +86,7 @@ void tab2D_free(int** tabXY, int x)
 	free(tabXY);
 }
 
+//This function create a new game tab
 int** newPlat(int sizeX, int sizeY, int random)
 {
 	int** plat = tab2D_init(sizeX, sizeY);
@@ -130,67 +134,66 @@ int** newPlat(int sizeX, int sizeY, int random)
 	return plat;
 }
 
-void validateMove(int cursX, int cursY, int* cursX2, int* cursY2, int** plat, Item_text* text, Item** surface, int dim)
+//This function validate the move of the player
+void validateMove(int cursX, int cursY, int cursX2, int cursY2, int** plat, Item_text* text, Item** surface, int dim)
 {
-	if (cursX2 == NULL || cursY2 == NULL)
-		exit(1);
-
-	int test = plat[cursX][cursY] == 0 || plat[*cursX2][*cursY2] == 0;
+	int test = plat[cursX][cursY] == 0 || plat[cursX2][cursY2] == 0;
 	SDL_Texture* tempT = NULL;
 	int tempH = 0, tempW = 0;
 
-	if (abs(cursX - *cursX2) == 1 && abs(cursY - *cursY2) == 0 && test)
+	if (abs(cursX - cursX2) == 1 && abs(cursY - cursY2) == 0 && test)
 	{
 		int temp = plat[cursX][cursY];
-		plat[cursX][cursY] = plat[*cursX2][*cursY2];
-		plat[*cursX2][*cursY2] = temp;
+		plat[cursX][cursY] = plat[cursX2][cursY2];
+		plat[cursX2][cursY2] = temp;
 
-		tempT = text[*cursX2 * dim + *cursY2].text;
-		text[*cursX2 * dim + *cursY2].text = text[cursX * dim + cursY].text;
+		tempT = text[cursX2 * dim + cursY2].text;
+		text[cursX2 * dim + cursY2].text = text[cursX * dim + cursY].text;
 		text[cursX * dim + cursY].text = tempT;
 
-		tempH = text[*cursX2 * dim + *cursY2].dest.h;
-		text[*cursX2 * dim + *cursY2].dest.h = text[cursX * dim + cursY].dest.h;
+		tempH = text[cursX2 * dim + cursY2].dest.h;
+		text[cursX2 * dim + cursY2].dest.h = text[cursX * dim + cursY].dest.h;
 		text[cursX * dim + cursY].dest.h = tempH;
 
-		tempW = text[*cursX2 * dim + *cursY2].dest.w;
-		text[*cursX2 * dim + *cursY2].dest.w = text[cursX * dim + cursY].dest.w;
+		tempW = text[cursX2 * dim + cursY2].dest.w;
+		text[cursX2 * dim + cursY2].dest.w = text[cursX * dim + cursY].dest.w;
 		text[cursX * dim + cursY].dest.w = tempW;
 
 		text[cursX * dim + cursY].dest.x = (int)(surface[cursX][cursY].dest.x + (surface[cursX][cursY].dest.w / 2) - (text[cursX * dim + cursY].dest.w / 2));
 		text[cursX * dim + cursY].dest.y = (int)(surface[cursX][cursY].dest.y + (surface[cursX][cursY].dest.h / 2) - (text[cursX * dim + cursY].dest.h / 2));
 
-		text[*cursX2 * dim + *cursY2].dest.x = (int)(surface[*cursX2][*cursY2].dest.x + (surface[*cursX2][*cursY2].dest.w / 2) - (text[*cursX2 * dim + *cursY2].dest.w / 2));
-		text[*cursX2 * dim + *cursY2].dest.y = (int)(surface[*cursX2][*cursY2].dest.y + (surface[*cursX2][*cursY2].dest.h / 2) - (text[*cursX2 * dim + *cursY2].dest.h / 2));
+		text[cursX2 * dim + cursY2].dest.x = (int)(surface[cursX2][cursY2].dest.x + (surface[cursX2][cursY2].dest.w / 2) - (text[cursX2 * dim + cursY2].dest.w / 2));
+		text[cursX2 * dim + cursY2].dest.y = (int)(surface[cursX2][cursY2].dest.y + (surface[cursX2][cursY2].dest.h / 2) - (text[cursX2 * dim + cursY2].dest.h / 2));
 
 		//Fix for non convervative REC
 	}
-	else if (abs(cursX - *cursX2) == 0 && abs(cursY - *cursY2) == 1 && test)
+	else if (abs(cursX - cursX2) == 0 && abs(cursY - cursY2) == 1 && test)
 	{
 		int temp = plat[cursX][cursY];
-		plat[cursX][cursY] = plat[*cursX2][*cursY2];
-		plat[*cursX2][*cursY2] = temp;
+		plat[cursX][cursY] = plat[cursX2][cursY2];
+		plat[cursX2][cursY2] = temp;
 
-		tempT = text[*cursX2 * dim + *cursY2].text;
-		text[*cursX2 * dim + *cursY2].text = text[cursX * dim + cursY].text;
+		tempT = text[cursX2 * dim + cursY2].text;
+		text[cursX2 * dim + cursY2].text = text[cursX * dim + cursY].text;
 		text[cursX * dim + cursY].text = tempT;
 
-		tempH = text[*cursX2 * dim + *cursY2].dest.h;
-		text[*cursX2 * dim + *cursY2].dest.h = text[cursX * dim + cursY].dest.h;
+		tempH = text[cursX2 * dim + cursY2].dest.h;
+		text[cursX2 * dim + cursY2].dest.h = text[cursX * dim + cursY].dest.h;
 		text[cursX * dim + cursY].dest.h = tempH;
 
-		tempW = text[*cursX2 * dim + *cursY2].dest.w;
-		text[*cursX2 * dim + *cursY2].dest.w = text[cursX * dim + cursY].dest.w;
+		tempW = text[cursX2 * dim + cursY2].dest.w;
+		text[cursX2 * dim + cursY2].dest.w = text[cursX * dim + cursY].dest.w;
 		text[cursX * dim + cursY].dest.w = tempW;
 
 		text[cursX * dim + cursY].dest.x = (int)(surface[cursX][cursY].dest.x + (surface[cursX][cursY].dest.w / 2) - (text[cursX * dim + cursY].dest.w / 2));
 		text[cursX * dim + cursY].dest.y = (int)(surface[cursX][cursY].dest.y + (surface[cursX][cursY].dest.h / 2) - (text[cursX * dim + cursY].dest.h / 2));
 
-		text[*cursX2 * dim + *cursY2].dest.x = (int)(surface[*cursX2][*cursY2].dest.x + (surface[*cursX2][*cursY2].dest.w / 2) - (text[*cursX2 * dim + *cursY2].dest.w / 2));
-		text[*cursX2 * dim + *cursY2].dest.y = (int)(surface[*cursX2][*cursY2].dest.y + (surface[*cursX2][*cursY2].dest.h / 2) - (text[*cursX2 * dim + *cursY2].dest.h / 2));
+		text[cursX2 * dim + cursY2].dest.x = (int)(surface[cursX2][cursY2].dest.x + (surface[cursX2][cursY2].dest.w / 2) - (text[cursX2 * dim + cursY2].dest.w / 2));
+		text[cursX2 * dim + cursY2].dest.y = (int)(surface[cursX2][cursY2].dest.y + (surface[cursX2][cursY2].dest.h / 2) - (text[cursX2 * dim + cursY2].dest.h / 2));
 	}
 }
 
+//This function check if the tab is in the correct order
 int checkWin(int** plat, int dim)
 {
 	int** checkTab = newPlat(dim, dim, 0);
@@ -198,14 +201,14 @@ int checkWin(int** plat, int dim)
 	{
 		for (int l = 0; l < dim; l++)
 		{
-			if (plat[i][l] == checkTab[i][l])
+			if (plat[i][l] != checkTab[i][l])
 			{
 				tab2D_free(checkTab, dim);
-				return 0;
+				return 1;
 			}
 		}
 	}
 
 	tab2D_free(checkTab, dim);
-	return 1;
+	return 0;
 }

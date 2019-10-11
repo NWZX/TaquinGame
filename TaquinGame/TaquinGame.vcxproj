@@ -78,11 +78,11 @@
     <LibraryPath>C:\SDL\SDL2_MIX\lib\x86;C:\SDL\SDL2\lib\x86;C:\SDL\SDL2_IMG\lib\x86;C:\SDL\SDL2_TTF\lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\SDL\SDL2_MIX\include;C:\SDL\SDL2\include;C:\SDL\SDL2_IMG\include;C:\SDL\SDL2_TTF\include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>C:\SDL\SDL2_MIX\include;C:\SDL\SDL2\include;C:\SDL\SDL2_IMG\include;C:\SDL\SDL2_TTF\include;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
     <LibraryPath>C:\SDL\SDL2_MIX\lib\x64;C:\SDL\SDL2\lib\x64;C:\SDL\SDL2_IMG\lib\x64;C:\SDL\SDL2_TTF\lib\x64;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>C:\SDL\SDL2_MIX\include;C:\SDL\SDL2\include;C:\SDL\SDL2_IMG\include;C:\SDL\SDL2_TTF\include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>C:\SDL\SDL2_MIX\include;C:\SDL\SDL2\include;C:\SDL\SDL2_IMG\include;C:\SDL\SDL2_TTF\include;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
     <LibraryPath>C:\SDL\SDL2_MIX\lib\x64;C:\SDL\SDL2\lib\x64;C:\SDL\SDL2_IMG\lib\x64;C:\SDL\SDL2_TTF\lib\x64;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
