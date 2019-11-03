@@ -1,10 +1,13 @@
 # q learning with table
 import numpy as np
 from Game import *
-from keras.models import Sequential
-from keras.layers.core import Dense, Dropout, Activation
-from keras.optimizers import RMSprop, Adam, sgd
-from keras.layers.advanced_activations import LeakyReLU
+import os
+os.environ["CUDA_VISIBLE_DEVICES"]="-1"    
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Dropout, Activation
+from tensorflow.keras.optimizers import RMSprop, Adam, SGD
+from tensorflow.keras.layers import LeakyReLU
+#from tensorflow.python.client import device_lib
 import random
 import time
 
@@ -12,7 +15,7 @@ from collections import deque
 
 class Trainer:
     def __init__(self, name=None, learning_rate=0.001, epsilon_decay=0.9999, batch_size=30, memory_size=3000):
-        self.state_size = 64
+        self.state_size = 16
         self.action_size = 4
         self.gamma = 0.9
         self.epsilon = 1.0
@@ -27,9 +30,11 @@ class Trainer:
                 model = load_model("model-" + name)
         else:
             model = Sequential()
-            model.add(Dense(50, input_dim=self.state_size, activation='relu'))
-            model.add(Dense(30, activation='relu'))
-            model.add(Dense(30, activation='relu'))
+            model.add(Dense(16, input_dim=self.state_size, activation='relu'))
+            model.add(Dense(16, activation='relu'))
+            model.add(Dense(16, activation='relu'))
+            model.add(Dense(8, input_dim=self.state_size/2, activation='relu'))
+            model.add(Dense(8, activation='relu'))
             model.add(Dense(self.action_size, activation='linear'))
             model.compile(loss='mse', optimizer=Adam(lr=self.learning_rate))
         
@@ -45,6 +50,7 @@ class Trainer:
             return random.randrange(self.action_size)
         
         # Predict the reward value based on the given state
+        state = np.reshape(state, (-1, 16))
         act_values = self.model.predict(np.array(state))
 
         # Pick the action based on the predicted reward
@@ -63,6 +69,8 @@ class Trainer:
         outputs = np.zeros((batch_size, self.action_size))
 
         for i, (state, action, reward, next_state, done) in enumerate(minibatch):
+            state = np.reshape(state, (-1, 16))
+            next_state = np.reshape(next_state, (-1, 16))
             target = self.model.predict(state)[0]
             if done:
                 target[action] = reward
@@ -112,7 +120,7 @@ def train(episodes, trainer, wrong_action_p, alea, collecting=False, snapshot=50
     global_counter = 0
     for e in range(episodes+1):
         state = g.generate_game()
-        score = 0
+        score = 100
         done = False
         steps = 0
         while not done:
@@ -120,7 +128,7 @@ def train(episodes, trainer, wrong_action_p, alea, collecting=False, snapshot=50
             global_counter += 1
             action = trainer.get_best_action(state)
             trainer.decay_epsilon()
-            next_state2, reward2, done2 = g.move(action)
+            next_state, reward, done = g.move(action)
             score += reward
             trainer.remember(state, action, reward, next_state, done)  # ici on enregistre le sample dans la mémoire
             state = next_state
@@ -140,8 +148,9 @@ def train(episodes, trainer, wrong_action_p, alea, collecting=False, snapshot=50
     return scores, losses, epsilons
 
 def main():
+  #print(device_lib.list_local_devices())
   trainer = Trainer(learning_rate=0.001, epsilon_decay=0.999995)
-  scores, losses, epsilons = train(35000, trainer, True, True, snapshot=2500)
+  scores, losses, epsilons = train(500, trainer, True, True, snapshot=2500)
   
 if __name__== "__main__":
   main()
