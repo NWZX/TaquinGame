@@ -120,7 +120,7 @@ def train(episodes, trainer, wrong_action_p, alea, collecting=False, snapshot=50
     global_counter = 0
     for e in range(episodes+1):
         state = g.generate_game()
-        score = 100
+        score = 0
         done = False
         steps = 0
         while not done:
@@ -138,9 +138,10 @@ def train(episodes, trainer, wrong_action_p, alea, collecting=False, snapshot=50
             if done:
                 scores.append(score)
                 epsilons.append(trainer.epsilon)
-            if steps > 200:
+            if steps > 50:
                 break
-        if e % 200 == 0:
+        if e % 50 == 0:
+            g.print()
             print("episode: {}/{}, moves: {}, score: {}, epsilon: {}, loss: {}"
                   .format(e, episodes, steps, score, trainer.epsilon, losses[-1]))
         if e > 0 and e % snapshot == 0:
@@ -150,7 +151,7 @@ def train(episodes, trainer, wrong_action_p, alea, collecting=False, snapshot=50
 def main():
   #print(device_lib.list_local_devices())
   trainer = Trainer(learning_rate=0.001, epsilon_decay=0.999995)
-  scores, losses, epsilons = train(500, trainer, True, True, snapshot=2500)
+  scores, losses, epsilons = train(500, trainer, True, True, snapshot=50)
   
 if __name__== "__main__":
   main()

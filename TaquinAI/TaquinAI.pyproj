@@ -11,7 +11,7 @@
     <OutputPath>.</OutputPath>
     <Name>TaquinAI</Name>
     <RootNamespace>TaquinAI</RootNamespace>
-    <InterpreterId>Global|VisualStudio|ML</InterpreterId>
+    <InterpreterId></InterpreterId>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -26,11 +26,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="TaquinAI.py" />
-  </ItemGroup>
-  <ItemGroup>
-    <InterpreterReference Include="CondaEnv|CondaEnv|ml" />
-    <InterpreterReference Include="Global|ContinuumAnalytics|Anaconda37-64" />
-    <InterpreterReference Include="Global|VisualStudio|ML" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
