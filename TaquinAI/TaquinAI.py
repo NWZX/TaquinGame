@@ -1,8 +1,8 @@
 # q learning with table
 import numpy as np
 from Game import *
-import os
-os.environ["CUDA_VISIBLE_DEVICES"]="-1"    
+#import os
+#os.environ["CUDA_VISIBLE_DEVICES"]="-1"    
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout, Activation
 from tensorflow.keras.optimizers import RMSprop, Adam, SGD
@@ -10,6 +10,8 @@ from tensorflow.keras.layers import LeakyReLU
 #from tensorflow.python.client import device_lib
 import random
 import time
+import copy
+from threading import Thread
 
 from collections import deque
 
@@ -100,6 +102,9 @@ def train(episodes, trainer, wrong_action_p, alea, collecting=False, snapshot=50
     global_counter = 0
     losses = [0]
     epsilons = []
+    n_agent = 4
+    threads = []
+    results = [() for x in range(n_agent)]
 
     # we start with a sequence to collect information, without learning
     if collecting:
@@ -111,8 +116,32 @@ def train(episodes, trainer, wrong_action_p, alea, collecting=False, snapshot=50
             done = False
             while not done:
                 steps += 1
-                action = g.get_random_action()
-                next_state, reward, done = g.move(action)
+
+                actions = g.get_random_action(n_agent)
+                for ii in range(n_agent):
+                    tg = copy.deepcopy(g)
+                    process = Thread(target=tg.moveTry, args=[actions[ii], results, ii])
+                    process.start()
+                    threads.append(process)
+                for process in threads:
+                    process.join()
+
+                next_state = results[0][0]
+                reward = results[0][1]
+                done = results[0][2]
+                action = results[0][3]
+                for obj in results:
+                    if obj[2] == True:
+                        action = obj[3]
+                        done = obj[2]
+                        reward = obj[1]
+                        next_state = obj[0]
+                    elif obj[1] > reward:
+                        action = obj[3]
+                        done = obj[2]
+                        reward = obj[1]
+                        next_state = obj[0]
+                g.move(action)
                 trainer.remember(state, action, reward, next_state, done)
                 state = next_state
 
@@ -126,9 +155,34 @@ def train(episodes, trainer, wrong_action_p, alea, collecting=False, snapshot=50
         while not done:
             steps += 1
             global_counter += 1
-            action = trainer.get_best_action(state)
+            actions = g.get_random_action(n_agent)
             trainer.decay_epsilon()
-            next_state, reward, done = g.move(action)
+
+            for ii in range(n_agent):
+                tg = copy.deepcopy(g)
+                process = Thread(target=tg.moveTry, args=[actions[ii], results, ii])
+                process.start()
+                threads.append(process)
+            for process in threads:
+                process.join()
+
+            next_state = results[0][0]
+            reward = results[0][1]
+            done = results[0][2]
+            action = results[0][3]
+            for obj in results:
+                if obj[2] == True:
+                    action = obj[3]
+                    done = obj[2]
+                    reward = obj[1]
+                    next_state = obj[0]
+                elif obj[1] > reward:
+                    action = obj[3]
+                    done = obj[2]
+                    reward = obj[1]
+                    next_state = obj[0]
+	   
+            g.move(action)
             score += reward
             trainer.remember(state, action, reward, next_state, done)  # ici on enregistre le sample dans la mémoire
             state = next_state
@@ -138,9 +192,9 @@ def train(episodes, trainer, wrong_action_p, alea, collecting=False, snapshot=50
             if done:
                 scores.append(score)
                 epsilons.append(trainer.epsilon)
-            if steps > 50:
+            if steps > 200:
                 break
-        if e % 50 == 0:
+        if e % 25 == 0:
             g.print()
             print("episode: {}/{}, moves: {}, score: {}, epsilon: {}, loss: {}"
                   .format(e, episodes, steps, score, trainer.epsilon, losses[-1]))
@@ -151,7 +205,7 @@ def train(episodes, trainer, wrong_action_p, alea, collecting=False, snapshot=50
 def main():
   #print(device_lib.list_local_devices())
   trainer = Trainer(learning_rate=0.001, epsilon_decay=0.999995)
-  scores, losses, epsilons = train(500, trainer, True, True, snapshot=50)
+  scores, losses, epsilons = train(10000, trainer, True, True, snapshot=1000)
   
 if __name__== "__main__":
   main()

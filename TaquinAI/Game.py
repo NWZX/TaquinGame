@@ -31,8 +31,8 @@ class Game:
     def getValue(self, liste: np.array, x, y):
         return liste[x,y]
 
-    def get_random_action():
-        return rd.randint(0, 4)
+    def get_random_action(self, n_thread):
+        return rd.sample(range(0,4), n_thread)
 
     def _get_state(self):
         return flatten(self._get_grille(self.posX, self.posY))
@@ -67,7 +67,7 @@ class Game:
         self.map = self.map.flatten()
         self.mapD = self.generateDistMap()
 
-    def move(self, action):
+    def moveTry(self, action, result, i):
         """
         takes an action parameter
         :param action : the id of an action
@@ -91,13 +91,37 @@ class Game:
             self.posY += 1
             self.vMove(OPosX, OPosY, self.posX, self.posY)
         elif action == self.ACTION_END:
-            return self.mapD, 0, True
+            result[i] = self.mapD, 0, True, i
         else:
-            return self.mapD, -15, False
+            result[i] = self.mapD, -15, False, i
         score=self.computeScore(OmpD)
         win = self.checkWin()
 
-        return self.mapD, score, win
+        result[i] = self.mapD, score, win, i
+        return True
+
+    def move(self, action):
+        """
+        takes an action parameter
+        :param action : the id of an action
+        :return ((state_id, end, hole, block), reward, is_final, actions)
+        """
+        
+        OPosX = self.posX
+        OPosY = self.posY
+
+        if action == self.ACTION_UP and self.posX > 0 :
+            self.posX -= 1
+            self.vMove(OPosX, OPosY, self.posX, self.posY)
+        elif action == self.ACTION_DOWN and self.posX < self.x - 1:
+            self.posX += 1
+            self.vMove(OPosX, OPosY, self.posX, self.posY)
+        elif action == self.ACTION_LEFT and self.posY > 0:
+            self.posY -= 1
+            self.vMove(OPosX, OPosY, self.posX, self.posY)
+        elif action == self.ACTION_RIGHT and self.posY < self.y - 1:
+            self.posY += 1
+            self.vMove(OPosX, OPosY, self.posX, self.posY)
 
     def checkWin(self):
         base_table = np.array([[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,0]])
