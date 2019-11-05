@@ -181,12 +181,13 @@ def train(episodes, trainer, wrong_action_p, alea, collecting=False, snapshot=50
                     done = obj[2]
                     reward = obj[1]
                     next_state = obj[0]
-	   
+
             g.move(action)
             score += reward
             trainer.remember(state, action, reward, next_state, done)  # ici on enregistre le sample dans la mémoire
             state = next_state
-            if global_counter % 100 == 0:
+            if global_counter % 25 == 0:
+                g.print()
                 l = trainer.replay(batch_size)   # ici on lance le 'replay', c'est un entrainement du réseau
                 losses.append(l.history['loss'][0])
             if done:
@@ -195,7 +196,6 @@ def train(episodes, trainer, wrong_action_p, alea, collecting=False, snapshot=50
             if steps > 200:
                 break
         if e % 25 == 0:
-            g.print()
             print("episode: {}/{}, moves: {}, score: {}, epsilon: {}, loss: {}"
                   .format(e, episodes, steps, score, trainer.epsilon, losses[-1]))
         if e > 0 and e % snapshot == 0:
