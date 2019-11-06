@@ -15,14 +15,14 @@ class Game:
 
     num_actions = len(ACTIONS)
 
-    def __init__(self, x, y, wrong_action_p=0.1, alea=False):
+    def __init__(self, x, y, alea=False):
         self.x = x
         self.y = y
         self.alea = alea
         self.map = self.generate_game()
         self.posX = self.getPos(np.reshape(self.map, (-1, 4)), 0)[0][0]
         self.posY = self.getPos(np.reshape(self.map, (-1, 4)), 0)[1][0]
-        self.mapD = self.generateDistMap()
+        #self.mapD = self.generateDistMap()
 
     def getPos(self, liste: np.array, item: int):
         result = np.where(liste == item)
@@ -31,11 +31,11 @@ class Game:
     def getValue(self, liste: np.array, x, y):
         return liste[x,y]
 
-    def get_random_action(self, n_thread):
-        return rd.sample(range(0,4), n_thread)
+    def get_random_action(self):
+        return rd.randrange(0, 4)
 
     def _get_state(self):
-        return flatten(self._get_grille(self.posX, self.posY))
+        return self.map
 
     def _get_grille(self, x, y):
         grille = [
@@ -59,15 +59,18 @@ class Game:
     
     def reset(self):
         self.map = self.generate_game()
-        self.mapD = self.generateDistMap()
+        self.posX = self.getPos(np.reshape(self.map, (-1, 4)), 0)[0][0]
+        self.posY = self.getPos(np.reshape(self.map, (-1, 4)), 0)[1][0]
+        #self.mapD = self.generateDistMap()
+        return self.map
 
     def vMove(self, OPosX, OPosY, PosX, PosY):
         self.map = np.reshape(self.map, (-1, 4))
         self.map[OPosX][OPosY], self.map[PosX][PosY] = self.map[PosX][PosY], self.map[OPosX][OPosY]
         self.map = self.map.flatten()
-        self.mapD = self.generateDistMap()
+        #self.mapD = self.generateDistMap()
 
-    def moveTry(self, action, result, i):
+    def move(self, action, move):
         """
         takes an action parameter
         :param action : the id of an action
@@ -76,7 +79,6 @@ class Game:
         
         OPosX = self.posX
         OPosY = self.posY
-        OmpD = self.mapD
 
         if action == self.ACTION_UP and self.posX > 0 :
             self.posX -= 1
@@ -91,44 +93,29 @@ class Game:
             self.posY += 1
             self.vMove(OPosX, OPosY, self.posX, self.posY)
         elif action == self.ACTION_END:
-            result[i] = self.mapD, 0, True, i
+            return self.map, 0, True
         else:
-            result[i] = self.mapD, -15, False, i
-        score=self.computeScore(OmpD)
+            return self.map, 0, False
+
+        score=self.computeScore()
         win = self.checkWin()
+        if win:
+            score+=100
+            score += 710-(10*move)
 
-        result[i] = self.mapD, score, win, i
-        return True
-
-    def move(self, action):
-        """
-        takes an action parameter
-        :param action : the id of an action
-        :return ((state_id, end, hole, block), reward, is_final, actions)
-        """
-        
-        OPosX = self.posX
-        OPosY = self.posY
-
-        if action == self.ACTION_UP and self.posX > 0 :
-            self.posX -= 1
-            self.vMove(OPosX, OPosY, self.posX, self.posY)
-        elif action == self.ACTION_DOWN and self.posX < self.x - 1:
-            self.posX += 1
-            self.vMove(OPosX, OPosY, self.posX, self.posY)
-        elif action == self.ACTION_LEFT and self.posY > 0:
-            self.posY -= 1
-            self.vMove(OPosX, OPosY, self.posX, self.posY)
-        elif action == self.ACTION_RIGHT and self.posY < self.y - 1:
-            self.posY += 1
-            self.vMove(OPosX, OPosY, self.posX, self.posY)
+        return self.map, score, win
 
     def checkWin(self):
-        base_table = np.array([[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,0]])
-        if (self.map == base_table).all():
+        win = 0
+        base_table = np.array([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,0])
+        for x in range(len(base_table)):
+            if base_table[x] == self.map[x]:
+                win += 1
+        if win == len(base_table):
             return True
         else:
             return False
+
 
     def generateDistMap(self):
         base_table = np.array([[1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,0]])
@@ -142,21 +129,13 @@ class Game:
                 distmap[x1, y1] =  math.sqrt(math.pow((x2-x1),2)+math.pow((y2-y1),2))
         return distmap
 
-    def computeScore(self, OmpD:np.array):
+    def computeScore(self):
         score = 0
-        l = 0
-        OmpD = OmpD.flatten()
-        for i in self.mapD.flatten():
-            if i == 0 and OmpD[l] == 0:
-                score += 10
-            elif OmpD[l] == 0 and i != 0:
-                score -= 10
-            elif OmpD[l] != 0 and i == 0:
-                score += 5
-            else:
-                score -= i
-            l+=1
-        return score // 10
+        mpD = self.map
+        for i in range(len(mpD)-1):
+            if mpD[i]+1 == mpD[i+1]:
+                score += 1
+        return score - 1
 
 
     def print(self):
@@ -167,6 +146,6 @@ class Game:
                 if i == self.posX and j == self.posY:
                     str = str + "x" + "{:02d}".format(nmap[i,j]) + " "
                 else:
-                    str += "{:02d}".format(nmap[i,j]) + " "
+                    str += " {:02d}".format(nmap[i,j]) + " "
             str += "\n"
         print(str)
