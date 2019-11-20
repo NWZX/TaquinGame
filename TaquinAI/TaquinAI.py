@@ -94,21 +94,18 @@ class Trainer:
             name += '-' + id
         self.model.save(name, overwrite=overwrite)
 
-def train(episodes, trainer, wrong_action_p, alea, collecting=False, snapshot=5000):
+def train(episodes, trainer, alea, collecting=False, snapshot=5000):
     batch_size = 32
-    g = Game(4, 4, wrong_action_p, alea=alea)
+    g = Game(4, 4, alea=alea)
     counter = 1
     scores = []
     global_counter = 0
     losses = [0]
     epsilons = []
-    n_agent = 4
-    threads = []
-    results = [() for x in range(n_agent)]
 
     # we start with a sequence to collect information, without learning
     if collecting:
-        collecting_steps = 10000
+        collecting_steps = 1000
         print("Collecting game without learning")
         steps = 0
         while steps < collecting_steps:
@@ -116,32 +113,8 @@ def train(episodes, trainer, wrong_action_p, alea, collecting=False, snapshot=50
             done = False
             while not done:
                 steps += 1
-
-                actions = g.get_random_action(n_agent)
-                for ii in range(n_agent):
-                    tg = copy.deepcopy(g)
-                    process = Thread(target=tg.moveTry, args=[actions[ii], results, ii])
-                    process.start()
-                    threads.append(process)
-                for process in threads:
-                    process.join()
-
-                next_state = results[0][0]
-                reward = results[0][1]
-                done = results[0][2]
-                action = results[0][3]
-                for obj in results:
-                    if obj[2] == True:
-                        action = obj[3]
-                        done = obj[2]
-                        reward = obj[1]
-                        next_state = obj[0]
-                    elif obj[1] > reward:
-                        action = obj[3]
-                        done = obj[2]
-                        reward = obj[1]
-                        next_state = obj[0]
-                g.move(action)
+                action = g.get_random_action()
+                next_state, reward, done = g.move(action)
                 trainer.remember(state, action, reward, next_state, done)
                 state = next_state
 
@@ -155,57 +128,30 @@ def train(episodes, trainer, wrong_action_p, alea, collecting=False, snapshot=50
         while not done:
             steps += 1
             global_counter += 1
-            actions = g.get_random_action(n_agent)
+            action = trainer.get_best_action(state)
             trainer.decay_epsilon()
-
-            for ii in range(n_agent):
-                tg = copy.deepcopy(g)
-                process = Thread(target=tg.moveTry, args=[actions[ii], results, ii])
-                process.start()
-                threads.append(process)
-            for process in threads:
-                process.join()
-
-            next_state = results[0][0]
-            reward = results[0][1]
-            done = results[0][2]
-            action = results[0][3]
-            for obj in results:
-                if obj[2] == True:
-                    action = obj[3]
-                    done = obj[2]
-                    reward = obj[1]
-                    next_state = obj[0]
-                elif obj[1] > reward:
-                    action = obj[3]
-                    done = obj[2]
-                    reward = obj[1]
-                    next_state = obj[0]
-
-            g.move(action)
+            next_state, reward, done = g.move(action)
             score += reward
             trainer.remember(state, action, reward, next_state, done)  # ici on enregistre le sample dans la mémoire
             state = next_state
-            if global_counter % 25 == 0:
-                g.print()
+            if global_counter % 100 == 0:
                 l = trainer.replay(batch_size)   # ici on lance le 'replay', c'est un entrainement du réseau
                 losses.append(l.history['loss'][0])
             if done:
                 scores.append(score)
                 epsilons.append(trainer.epsilon)
-            if steps > 200:
+            if steps > 50:
                 break
-        if e % 25 == 0:
-            print("episode: {}/{}, moves: {}, score: {}, epsilon: {}, loss: {}"
-                  .format(e, episodes, steps, score, trainer.epsilon, losses[-1]))
+        print("episode: {}/{}, moves: {}, score: {}, epsilon: {}, loss: {}"
+              .format(e, episodes, steps, score, trainer.epsilon, losses[-1]))
         if e > 0 and e % snapshot == 0:
             trainer.save(id='iteration-%s' % e)
     return scores, losses, epsilons
 
 def main():
   #print(device_lib.list_local_devices())
-  trainer = Trainer(learning_rate=0.001, epsilon_decay=0.999995)
-  scores, losses, epsilons = train(10000, trainer, True, True, snapshot=1000)
+  trainer = Trainer(learning_rate=0.01, epsilon_decay=0.999995)
+  scores, losses, epsilons = train(10000, trainer, True, False, snapshot=100)
   
 if __name__== "__main__":
   main()

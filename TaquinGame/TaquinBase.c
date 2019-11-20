@@ -121,6 +121,7 @@ int** newPlat(int sizeX, int sizeY, int random)
 	}
 	else
 	{
+		cont = 1;
 		for (int i = 0; i < sizeX; i++)
 		{
 			for (int l = 0; l < sizeY; l++)
@@ -129,6 +130,7 @@ int** newPlat(int sizeX, int sizeY, int random)
 				cont++;
 			}
 		}
+		plat[3][3] = 0;
 	}
 
 	return plat;

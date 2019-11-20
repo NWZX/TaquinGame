@@ -26,4 +26,5 @@ SOFTWARE.
 
 #include "TaquinBase.h"
 
-void newGameBoard(int boardDim, int screenSizeX, int screenSizeY, int rand, SDL_Window* screen);
+void newGameBoard(int boardDim, int screenSizeX, int screenSizeY, int rand, SDL_Renderer* render);
+int newMenu(SDL_Renderer* render);

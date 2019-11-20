@@ -149,6 +149,7 @@
     <ClCompile Include="Taquin_Game_UI.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="main.h" />
     <ClInclude Include="TaquinBase.h" />
     <ClInclude Include="Taquin_Game_UI.h" />
   </ItemGroup>

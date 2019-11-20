@@ -137,24 +137,16 @@ Uint32 trick(Uint32 intervalle, void* parametre)
 	return intervalle;
 }
 
-void newGameBoard(int boardDim, int screenSizeX, int screenSizeY, int rand, SDL_Window* screen)
+void newGameBoard(int boardDim, int screenSizeX, int screenSizeY, int rand, SDL_Renderer* render)
 {
 	int cursX = 0, cursY = 0;
 	int cursX2 = 0, cursY2 = 0;
 
 	//Initiate window
 	//-------------------------------------------------------
-
-	SDL_Renderer* render = NULL;
 	SDL_Event event;
 	Item** plat = NULL;
 
-	render = SDL_CreateRenderer(screen, -1, SDL_RENDERER_ACCELERATED);
-	if (render == NULL)
-	{
-		exit(0);
-	}
-	SDL_SetRenderDrawColor(render, 0, 150, 0, 255);
 	SDL_RenderClear(render);
 
 	plat = tab2D_initG(render, boardDim, screenSizeX, screenSizeY);
@@ -174,7 +166,8 @@ void newGameBoard(int boardDim, int screenSizeX, int screenSizeY, int rand, SDL_
 	SDL_Texture* board = SDL_CreateTextureFromSurface(render, board_sprite);
 	SDL_FreeSurface(board_sprite);
 
-	SDL_Rect dest = { screenSizeX / 2 - board_sprite->w / 2, screenSizeY / 2 - board_sprite->h / 2, board_sprite->w, board_sprite->h };
+	SDL_Rect dest = { 0, 0, 800, 600 };
+	//SDL_Rect dest = { screenSizeX / 2 - board_sprite->w / 2, screenSizeY / 2 - board_sprite->h / 2, board_sprite->w, board_sprite->h };
 
 	//Make hover texture
 	//-------------------------------------------------
@@ -339,6 +332,110 @@ void newGameBoard(int boardDim, int screenSizeX, int screenSizeY, int rand, SDL_
 
 	SDL_DestroyTexture(board); // Destroy texture
 
-	SDL_DestroyRenderer(render); //
+	//SDL_DestroyRenderer(render); //
 
+}
+
+int interceptMouse(Mix_Chunk* select, Mix_Chunk* selectc, SDL_Event* even, int hover)
+{
+	int cube1IX = 244, cube1IY = 206;
+	int cube1SX = 286, cube1SY = 110;
+	int cube2IX = 244, cube2IY = 357;
+	int cube2SX = 286, cube2SY = 118;
+
+	if (SDL_PollEvent(even))
+	{
+		if (even->window.event == SDL_WINDOWEVENT_CLOSE) // Fermeture de la fenêtre
+		{
+			return -1;
+		}
+		if (even->type == SDL_MOUSEBUTTONDOWN)
+		{
+			if (even->button.x > cube1IX&& even->button.x < cube1IX + cube1SX && even->button.y > cube1IY&& even->button.y < cube1IY + cube1SY)
+			{
+				Mix_PlayChannel(-1, selectc, 0);
+				return 1;
+			}
+			if (even->button.x > cube2IX&& even->button.x < cube2IX + cube2SX && even->button.y > cube2IY&& even->button.y < cube2IY + cube2SY)
+			{
+				Mix_PlayChannel(-1, selectc, 0);
+				return 2;
+			}
+		}
+		else if (even->type == SDL_MOUSEMOTION)
+		{
+			if (even->button.x > cube1IX&& even->button.x < cube1IX + cube1SX && even->button.y > cube1IY&& even->button.y < cube1IY + cube1SY)
+			{
+				if(hover == 0)
+					Mix_PlayChannel(-1, select, 0);
+
+				return 3;
+			}
+			if (even->button.x > cube2IX&& even->button.x < cube2IX + cube2SX && even->button.y > cube2IY&& even->button.y < cube2IY + cube2SY)
+			{
+				if(hover == 0)
+					Mix_PlayChannel(-1, select, 0);
+
+				return 3;
+			}
+			else
+			{
+				return 4;
+			}
+		}
+	}
+	return 0;
+}
+
+int newMenu(SDL_Renderer* render)
+{
+	SDL_Event even;
+	int result = 0;
+	int hover = 0;
+
+	SDL_RenderClear(render);
+
+	SDL_Surface* board_sprite = NULL;
+	board_sprite = IMG_Load("res/menu.png");
+	if (board_sprite == NULL)
+		exit(0);
+
+	SDL_Texture* board = SDL_CreateTextureFromSurface(render, board_sprite);
+	SDL_FreeSurface(board_sprite);
+
+	SDL_Rect dest = { 0, 0, board_sprite->w, board_sprite->h };
+
+	Mix_Chunk* select = NULL;
+	select = Mix_LoadWAV("res/select.wav");
+
+	Mix_Chunk* selectc = NULL;
+	selectc = Mix_LoadWAV("res/selectAM.wav");
+
+	while (1)
+	{
+		result = interceptMouse(select,selectc, &even, hover);
+		if(result != 0)
+		{
+			if (result == 1) {
+				SDL_Delay(250);
+				break;
+			}
+			else if (result == 3)
+				hover = 1;
+			else if (result == 4)
+				hover = 0;
+			else {
+				SDL_Delay(250);
+				break;
+			}
+		}
+		SDL_RenderCopy(render, board, NULL, &dest);
+		SDL_RenderPresent(render);
+		SDL_Delay(1); //Reduce CPU activity
+	}
+
+	Mix_FreeChunk(select);
+	Mix_FreeChunk(selectc);
+	SDL_DestroyTexture(board); // Destroy texture
+	return result;
 }
