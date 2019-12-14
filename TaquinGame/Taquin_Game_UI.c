@@ -28,7 +28,7 @@ SOFTWARE.
 Item** tab2D_initG(SDL_Renderer* render, int dim, int windowX, int windowY)
 {
 	Item** items = NULL;
-	items = malloc(dim * 8 * sizeof(Item*));
+	items = malloc(dim * sizeof(Item*));
 	if (items == NULL)
 	{
 		exit(0);
@@ -62,7 +62,7 @@ Item** tab2D_initG(SDL_Renderer* render, int dim, int windowX, int windowY)
 	{
 		for (int l = 0; l < dim; l++)
 		{
-			if (i == 0 & l == 0)
+			if (i == 0 && l == 0)
 			{
 				items[i][l].texture = SDL_CreateTextureFromSurface(render, cube_void_sprite);
 				items[i][l].dest.x = (trueBoardX + spaceX / 2) + (cube_void_sprite->w + spaceX) * l;
@@ -183,7 +183,6 @@ void newGameBoard(int boardDim, int screenSizeX, int screenSizeY, int rand, SDL_
 	SDL_FreeSurface(board_sprite);
 
 	SDL_Rect dest = { 0, 0, 800, 600 };
-	//SDL_Rect dest = { screenSizeX / 2 - board_sprite->w / 2, screenSizeY / 2 - board_sprite->h / 2, board_sprite->w, board_sprite->h };
 
 	//Make hover texture
 	//-------------------------------------------------
@@ -212,7 +211,7 @@ void newGameBoard(int boardDim, int screenSizeX, int screenSizeY, int rand, SDL_
 	//Make text texture
 	//--------------------------------------------------
 
-	Item_text* text = malloc((int)pow(boardDim, 2) * 40 * sizeof(Item_text));
+	Item_text* text = malloc((int)pow(boardDim, 2) * sizeof(Item_text));
 	SDL_Color color = { 0,0,0 };
 	TTF_Font* font = TTF_OpenFont("res/arial.ttf", 25);
 	if (text == NULL)
@@ -235,7 +234,7 @@ void newGameBoard(int boardDim, int screenSizeX, int screenSizeY, int rand, SDL_
 	for (int i = 0; i < (int)pow(boardDim, 2); i++)
 	{
 		if(i == 0)
-			sprintf_s(buff, 4, " ", vir_inf_plat[i]);
+			sprintf_s(buff, 4, " ");
 		else
 			sprintf_s(buff, 4, "%d", vir_inf_plat[i]);
 		temp = TTF_RenderText_Blended(font, buff, color);
@@ -411,9 +410,8 @@ int newMenu(SDL_Renderer* render)
 		exit(0);
 
 	SDL_Texture* board = SDL_CreateTextureFromSurface(render, board_sprite);
-	SDL_FreeSurface(board_sprite);
-
 	SDL_Rect dest = { 0, 0, board_sprite->w, board_sprite->h };
+	SDL_FreeSurface(board_sprite);
 
 	Mix_Chunk* select = NULL;
 	select = Mix_LoadWAV("res/select.wav");
@@ -425,6 +423,7 @@ int newMenu(SDL_Renderer* render)
 
 	while (1)
 	{
+		SDL_RenderClear(render);
 		result = interceptMouse(select, selectc, &even, hover);
 		if (result != 0)
 		{

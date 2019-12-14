@@ -43,7 +43,7 @@ int** tab2D_init(int x, int y)
 
 	for (int i = 0; i < x; i++)
 	{
-		tabXY[i] = malloc(y * 8 * sizeof(int));
+		tabXY[i] = malloc(y * sizeof(int));
 		if (tabXY[i] == NULL)
 		{
 			exit(0);
@@ -57,7 +57,7 @@ int** tab2D_init(int x, int y)
 int* tab2D_convert(int** tabXY, int dimSize)
 {
 	int* temp = NULL;
-	temp = malloc((int)pow(dimSize, 2) * 8 * sizeof(int*));
+	temp = malloc((int)pow(dimSize, 2) * sizeof(int*));
 	if (temp == NULL)
 	{
 		exit(0);

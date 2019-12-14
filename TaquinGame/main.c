@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
 	musique = Mix_LoadMUS("res/musique.mp3");
 
 	Mix_Music* Hmusique;
-	Hmusique = Mix_LoadMUS("res/musique.mp3");
+	Hmusique = Mix_LoadMUS("res/menu.mp3");
 	
 
 	//Make a new window
@@ -85,6 +85,10 @@ int main(int argc, char* argv[])
 
 				Mix_PlayMusic(musique, -1);
 				newGameBoard(4, 800, 600, 0, render);
+
+				Mix_PausedMusic();
+
+				Mix_PlayMusic(Hmusique, -1);
 			}
 			else
 			{
