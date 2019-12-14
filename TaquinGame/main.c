@@ -23,6 +23,7 @@ SOFTWARE.
 */
 
 #include "Taquin_Game_UI.h"
+#include "main.h"
 
 int main(int argc, char* argv[])
 {
@@ -51,7 +52,10 @@ int main(int argc, char* argv[])
 
 	Mix_Music* musique;
 	musique = Mix_LoadMUS("res/musique.mp3");
-	Mix_PlayMusic(musique, -1);
+
+	Mix_Music* Hmusique;
+	Hmusique = Mix_LoadMUS("res/musique.mp3");
+	
 
 	//Make a new window
 	SDL_Window* pWindow = NULL;
@@ -63,11 +67,35 @@ int main(int argc, char* argv[])
 
 	if (pWindow)
 	{
-		newGameBoard(4, 800, 600, 0, pWindow);
+		Mix_PlayMusic(Hmusique, -1);
 
+		SDL_Renderer* render = NULL;
+		render = SDL_CreateRenderer(pWindow, -1, SDL_RENDERER_ACCELERATED);
+		if (render == NULL)
+		{
+			exit(0);
+		}
+		SDL_SetRenderDrawColor(render, 255, 171, 76, 255);
+
+		while (1)
+		{
+			if (newMenu(render) == 1)
+			{
+				Mix_PausedMusic();
+
+				Mix_PlayMusic(musique, -1);
+				newGameBoard(4, 800, 600, 0, render);
+			}
+			else
+			{
+				break;
+			}
+		}
+
+		SDL_DestroyRenderer(render);
 		SDL_DestroyWindow(pWindow);
 	}
-
+	Mix_FreeMusic(Hmusique);
 	Mix_FreeMusic(musique);
 	Mix_CloseAudio();
 	TTF_Quit();

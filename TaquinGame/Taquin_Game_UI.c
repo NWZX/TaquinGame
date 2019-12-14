@@ -42,12 +42,17 @@ Item** tab2D_initG(SDL_Renderer* render, int dim, int windowX, int windowY)
 		}
 	}
 
-	int trueBoardX = (int)((windowX/2 - 640/2));
-	int trueBoardY = (int)((windowY/2 - 480/2));
+	int trueBoardX = (int)((windowX / 2 - 640 / 2));
+	int trueBoardY = (int)((windowY / 2 - 480 / 2));
 
 	SDL_Surface* cube_sprite = NULL;
 	cube_sprite = IMG_Load("res/cube.png");
 	if (cube_sprite == NULL)
+		exit(0);
+
+	SDL_Surface* cube_void_sprite = NULL;
+	cube_void_sprite = IMG_Load("res/cube_void.png");
+	if (cube_void_sprite == NULL)
 		exit(0);
 
 	int spaceX = (640 - cube_sprite->w * dim) / dim;
@@ -57,15 +62,27 @@ Item** tab2D_initG(SDL_Renderer* render, int dim, int windowX, int windowY)
 	{
 		for (int l = 0; l < dim; l++)
 		{
-			items[i][l].texture = SDL_CreateTextureFromSurface(render, cube_sprite);
-			items[i][l].dest.x = (trueBoardX+spaceX/2) + (cube_sprite->w+spaceX)*l;
-			items[i][l].dest.y = (trueBoardY+spaceY/2) + (cube_sprite->h +spaceY)*i;
-			items[i][l].dest.h = cube_sprite->h;
-			items[i][l].dest.w = cube_sprite->w;
+			if (i == 0 & l == 0)
+			{
+				items[i][l].texture = SDL_CreateTextureFromSurface(render, cube_void_sprite);
+				items[i][l].dest.x = (trueBoardX + spaceX / 2) + (cube_void_sprite->w + spaceX) * l;
+				items[i][l].dest.y = (trueBoardY + spaceY / 2) + (cube_void_sprite->h + spaceY) * i;
+				items[i][l].dest.h = cube_void_sprite->h;
+				items[i][l].dest.w = cube_void_sprite->w;
+			}
+			else
+			{
+				items[i][l].texture = SDL_CreateTextureFromSurface(render, cube_sprite);
+				items[i][l].dest.x = (trueBoardX + spaceX / 2) + (cube_sprite->w + spaceX) * l;
+				items[i][l].dest.y = (trueBoardY + spaceY / 2) + (cube_sprite->h + spaceY) * i;
+				items[i][l].dest.h = cube_sprite->h;
+				items[i][l].dest.w = cube_sprite->w;
+			}
 		}
 	}
 
 	SDL_FreeSurface(cube_sprite);
+	SDL_FreeSurface(cube_void_sprite);
 
 	return items;
 }
@@ -103,14 +120,13 @@ int interceptKeyG(Mix_Chunk* move, SDL_Event* even, int* cursX, int* cursY, int 
 			{
 				*cursX -= 1;
 				Mix_PlayChannel(-1, move, 0);
-				
 			}
-			else if (even->key.keysym.sym == SDLK_DOWN && *cursX < dim-1)
+			else if (even->key.keysym.sym == SDLK_DOWN && *cursX < dim - 1)
 			{
 				*cursX += 1;
 				Mix_PlayChannel(-1, move, 0);
 			}
-			else if (even->key.keysym.sym == SDLK_RIGHT && *cursY < dim-1)
+			else if (even->key.keysym.sym == SDLK_RIGHT && *cursY < dim - 1)
 			{
 				*cursY += 1;
 				Mix_PlayChannel(-1, move, 0);
@@ -137,24 +153,16 @@ Uint32 trick(Uint32 intervalle, void* parametre)
 	return intervalle;
 }
 
-void newGameBoard(int boardDim, int screenSizeX, int screenSizeY, int rand, SDL_Window* screen)
+void newGameBoard(int boardDim, int screenSizeX, int screenSizeY, int rand, SDL_Renderer* render)
 {
 	int cursX = 0, cursY = 0;
 	int cursX2 = 0, cursY2 = 0;
 
 	//Initiate window
 	//-------------------------------------------------------
-
-	SDL_Renderer* render = NULL;
 	SDL_Event event;
 	Item** plat = NULL;
 
-	render = SDL_CreateRenderer(screen, -1, SDL_RENDERER_ACCELERATED);
-	if (render == NULL)
-	{
-		exit(0);
-	}
-	SDL_SetRenderDrawColor(render, 0, 150, 0, 255);
 	SDL_RenderClear(render);
 
 	plat = tab2D_initG(render, boardDim, screenSizeX, screenSizeY);
@@ -174,38 +182,25 @@ void newGameBoard(int boardDim, int screenSizeX, int screenSizeY, int rand, SDL_
 	SDL_Texture* board = SDL_CreateTextureFromSurface(render, board_sprite);
 	SDL_FreeSurface(board_sprite);
 
-	SDL_Rect dest = { screenSizeX / 2 - board_sprite->w / 2, screenSizeY / 2 - board_sprite->h / 2, board_sprite->w, board_sprite->h };
+	SDL_Rect dest = { 0, 0, 800, 600 };
+	//SDL_Rect dest = { screenSizeX / 2 - board_sprite->w / 2, screenSizeY / 2 - board_sprite->h / 2, board_sprite->w, board_sprite->h };
 
 	//Make hover texture
 	//-------------------------------------------------
 
-	SDL_Surface* hover_sprite = NULL;
-	hover_sprite = IMG_Load("res/hover.png");
-	if (hover_sprite == NULL)
+	SDL_Surface* winner_sprite = NULL;
+	winner_sprite = IMG_Load("res/hover.png");
+	if (winner_sprite == NULL)
 		exit(0);
 
-	SDL_Texture* hover = SDL_CreateTextureFromSurface(render, hover_sprite);
-	SDL_Rect hover_dest = { 
-		plat[cursX][cursY].dest.x - ((hover_sprite->w - plat[cursX][cursY].dest.w) / 2), 
-		plat[cursX][cursY].dest.y - ((hover_sprite->h - plat[cursX][cursY].dest.h) / 2),
-		hover_sprite->w,
-		hover_sprite->h
+	SDL_Texture* winner = SDL_CreateTextureFromSurface(render, winner_sprite);
+	SDL_Rect winner_dest = {
+		screenSizeX / 2 - winner_sprite->w / 2,
+		screenSizeY / 2 - winner_sprite->h / 2,
+		winner_sprite->w,
+		winner_sprite->h
 	};
-	SDL_FreeSurface(hover_sprite);
-
-	//Make select texture
-	//-------------------------------------------------
-
-	SDL_Surface* select_sprite = NULL;
-	select_sprite = IMG_Load("res/select.png");
-	if (select_sprite == NULL)
-		exit(0);
-
-	SDL_Texture* select = SDL_CreateTextureFromSurface(render, select_sprite);
-	SDL_Rect select_dest;
-	select_dest.h = select_sprite->h;
-	select_dest.w = select_sprite->w;
-	SDL_FreeSurface(select_sprite);
+	SDL_FreeSurface(winner_sprite);
 
 	//------------------------------
 	Mix_Chunk* move = NULL;
@@ -217,7 +212,7 @@ void newGameBoard(int boardDim, int screenSizeX, int screenSizeY, int rand, SDL_
 	//Make text texture
 	//--------------------------------------------------
 
-	Item_text* text = malloc((int)pow(boardDim, 2) *40* sizeof(Item_text));
+	Item_text* text = malloc((int)pow(boardDim, 2) * 40 * sizeof(Item_text));
 	SDL_Color color = { 0,0,0 };
 	TTF_Font* font = TTF_OpenFont("res/arial.ttf", 25);
 	if (text == NULL)
@@ -239,7 +234,10 @@ void newGameBoard(int boardDim, int screenSizeX, int screenSizeY, int rand, SDL_
 
 	for (int i = 0; i < (int)pow(boardDim, 2); i++)
 	{
-		sprintf_s(buff, 4, "%d", vir_inf_plat[i]);
+		if(i == 0)
+			sprintf_s(buff, 4, " ", vir_inf_plat[i]);
+		else
+			sprintf_s(buff, 4, "%d", vir_inf_plat[i]);
 		temp = TTF_RenderText_Blended(font, buff, color);
 		if (temp == NULL)
 		{
@@ -261,6 +259,7 @@ void newGameBoard(int boardDim, int screenSizeX, int screenSizeY, int rand, SDL_
 	SDL_Surface* text_s = NULL;
 	Item_text text_timer;
 	char buff_text[20];
+	int check_win = 1;
 
 	while (1)
 	{
@@ -268,11 +267,7 @@ void newGameBoard(int boardDim, int screenSizeX, int screenSizeY, int rand, SDL_
 		if (result == 0)
 		{
 			validateMove(cursX, cursY, cursX2, cursY2, virtual_plat, text, plat, boardDim);
-			if (checkWin(virtual_plat, boardDim) == 0)
-			{
-				Mix_PlayChannel(-1, win, 0);
-				break;
-			}
+			check_win = checkWin(virtual_plat, boardDim);
 
 			cursX2 = cursX;
 			cursY2 = cursY;
@@ -285,23 +280,12 @@ void newGameBoard(int boardDim, int screenSizeX, int screenSizeY, int rand, SDL_
 		SDL_RenderClear(render);
 		SDL_RenderCopy(render, board, NULL, &dest);
 
-		hover_dest.x = plat[cursX][cursY].dest.x - ((hover_dest.w - plat[cursX][cursY].dest.w) / 2);
-		hover_dest.y = plat[cursX][cursY].dest.y - ((hover_dest.h - plat[cursX][cursY].dest.h) / 2);
-		SDL_RenderCopy(render, hover, NULL, &hover_dest);
-
-		//if (cursX2 != NULL && cursY2 != NULL)
-		//{
-		//	select_dest.x = plat[cursX2][cursY2].dest.x - ((select_dest.w - plat[cursX2][cursY2].dest.w) / 2);
-		//	select_dest.y = plat[cursX2][cursY2].dest.y - ((select_dest.h - plat[cursX2][cursY2].dest.h) / 2);
-		//	SDL_RenderCopy(render, select, NULL, &select_dest);
-		//}
-
 		for (int i = 0; i < boardDim; i++)
 		{
 			for (int l = 0; l < boardDim; l++)
 			{
 				SDL_RenderCopy(render, plat[i][l].texture, NULL, &plat[i][l].dest);
-				SDL_RenderCopy(render, text[i * boardDim + l].text, NULL, &text[i * boardDim +  l].dest);
+				SDL_RenderCopy(render, text[i * boardDim + l].text, NULL, &text[i * boardDim + l].dest);
 			}
 		}
 
@@ -315,6 +299,28 @@ void newGameBoard(int boardDim, int screenSizeX, int screenSizeY, int rand, SDL_
 		SDL_FreeSurface(text_s);
 		SDL_RenderCopy(render, text_timer.text, NULL, &text_timer.dest);
 		SDL_DestroyTexture(text_timer.text);
+
+		if (check_win == 0)
+		{
+			SDL_RenderCopy(render, winner, NULL, &winner_dest);
+			SDL_RenderPresent(render);
+			Mix_PlayChannel(-1, win, 0);
+			while (1)
+			{
+				if (SDL_PollEvent(&event))
+				{
+					if ((&event)->type == SDL_KEYUP)
+					{
+						if ((&event)->key.keysym.sym == SDLK_RETURN)
+						{
+							break;
+						}
+					}
+				}
+				SDL_Delay(1);
+			}
+			break;
+		}
 
 		SDL_RenderPresent(render);
 		SDL_Delay(1); //Reduce CPU activity
@@ -338,7 +344,110 @@ void newGameBoard(int boardDim, int screenSizeX, int screenSizeY, int rand, SDL_
 	free(text);
 
 	SDL_DestroyTexture(board); // Destroy texture
+}
 
-	SDL_DestroyRenderer(render); //
+int interceptMouse(Mix_Chunk* select, Mix_Chunk* selectc, SDL_Event* even, int hover)
+{
+	int cube1IX = 244, cube1IY = 206;
+	int cube1SX = 286, cube1SY = 110;
+	int cube2IX = 244, cube2IY = 357;
+	int cube2SX = 286, cube2SY = 118;
 
+	if (SDL_PollEvent(even))
+	{
+		if (even->window.event == SDL_WINDOWEVENT_CLOSE) // Fermeture de la fenêtre
+		{
+			return -1;
+		}
+		if (even->type == SDL_MOUSEBUTTONDOWN)
+		{
+			if (even->button.x > cube1IX&& even->button.x < cube1IX + cube1SX && even->button.y > cube1IY&& even->button.y < cube1IY + cube1SY)
+			{
+				Mix_PlayChannel(-1, selectc, 0);
+				return 1;
+			}
+			if (even->button.x > cube2IX&& even->button.x < cube2IX + cube2SX && even->button.y > cube2IY&& even->button.y < cube2IY + cube2SY)
+			{
+				Mix_PlayChannel(-1, selectc, 0);
+				return 2;
+			}
+		}
+		else if (even->type == SDL_MOUSEMOTION)
+		{
+			if (even->button.x > cube1IX&& even->button.x < cube1IX + cube1SX && even->button.y > cube1IY&& even->button.y < cube1IY + cube1SY)
+			{
+				if (hover == 0)
+					Mix_PlayChannel(-1, select, 0);
+
+				return 3;
+			}
+			if (even->button.x > cube2IX&& even->button.x < cube2IX + cube2SX && even->button.y > cube2IY&& even->button.y < cube2IY + cube2SY)
+			{
+				if (hover == 0)
+					Mix_PlayChannel(-1, select, 0);
+
+				return 3;
+			}
+			else
+			{
+				return 4;
+			}
+		}
+	}
+	return 0;
+}
+
+int newMenu(SDL_Renderer* render)
+{
+	SDL_Event even;
+	int result = 0;
+	int hover = 0;
+
+	SDL_RenderClear(render);
+
+	SDL_Surface* board_sprite = NULL;
+	board_sprite = IMG_Load("res/menu.png");
+	if (board_sprite == NULL)
+		exit(0);
+
+	SDL_Texture* board = SDL_CreateTextureFromSurface(render, board_sprite);
+	SDL_FreeSurface(board_sprite);
+
+	SDL_Rect dest = { 0, 0, board_sprite->w, board_sprite->h };
+
+	Mix_Chunk* select = NULL;
+	select = Mix_LoadWAV("res/select.wav");
+	Mix_VolumeChunk(select, 20);
+
+	Mix_Chunk* selectc = NULL;
+	selectc = Mix_LoadWAV("res/selectAM.wav");
+	Mix_VolumeChunk(selectc, 20);
+
+	while (1)
+	{
+		result = interceptMouse(select, selectc, &even, hover);
+		if (result != 0)
+		{
+			if (result == 1) {
+				SDL_Delay(250);
+				break;
+			}
+			else if (result == 3)
+				hover = 1;
+			else if (result == 4)
+				hover = 0;
+			else {
+				SDL_Delay(250);
+				break;
+			}
+		}
+		SDL_RenderCopy(render, board, NULL, &dest);
+		SDL_RenderPresent(render);
+		SDL_Delay(1); //Reduce CPU activity
+	}
+
+	Mix_FreeChunk(select);
+	Mix_FreeChunk(selectc);
+	SDL_DestroyTexture(board); // Destroy texture
+	return result;
 }

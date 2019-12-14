@@ -16,7 +16,7 @@ from threading import Thread
 from collections import deque
 
 class Trainer:
-    def __init__(self, name=None, learning_rate=0.001, epsilon_decay=0.9999, batch_size=30, memory_size=4000):
+    def __init__(self, name=None, learning_rate=0.001, epsilon_decay=0.9999, batch_size=30, memory_size=3000):
         self.state_size = 16
         self.action_size = 4
         self.gamma = 0.9
@@ -33,11 +33,9 @@ class Trainer:
         else:
             model = Sequential()
             model.add(Dense(16, input_dim=self.state_size, activation='relu'))
-            model.add(Dense(32, input_dim=16, activation='relu'))
-            model.add(Dense(64, input_dim=32, activation='relu'))
-            model.add(Dense(64, activation='relu'))
-            model.add(Dense(64, activation='relu'))
-            model.add(Dense(8, input_dim=64, activation='relu'))
+            model.add(Dense(16, activation='relu'))
+            model.add(Dense(16, activation='relu'))
+            model.add(Dense(8, input_dim=self.state_size/2, activation='relu'))
             model.add(Dense(8, activation='relu'))
             model.add(Dense(self.action_size, activation='linear'))
             model.compile(loss='mse', optimizer=Adam(lr=self.learning_rate))
@@ -61,8 +59,8 @@ class Trainer:
         action =  np.argmax(act_values[0])  
         return action
 
-    def remember(self, state, action, move, reward, next_state, done):
-        self.memory.append([state, action, move, reward, next_state, done])
+    def remember(self, state, action, reward, next_state, done):
+        self.memory.append([state, action, reward, next_state, done])
 
     def replay(self, batch_size):
         batch_size = min(batch_size, len(self.memory))
@@ -72,7 +70,7 @@ class Trainer:
         inputs = np.zeros((batch_size, self.state_size))
         outputs = np.zeros((batch_size, self.action_size))
 
-        for i, (state, action, move, reward, next_state, done) in enumerate(minibatch):
+        for i, (state, action, reward, next_state, done) in enumerate(minibatch):
             state = np.reshape(state, (-1, 16))
             next_state = np.reshape(next_state, (-1, 16))
             target = self.model.predict(state)[0]
@@ -104,11 +102,10 @@ def train(episodes, trainer, alea, collecting=False, snapshot=5000):
     global_counter = 0
     losses = [0]
     epsilons = []
-    threads = []
 
     # we start with a sequence to collect information, without learning
     if collecting:
-        collecting_steps = 20
+        collecting_steps = 1000
         print("Collecting game without learning")
         steps = 0
         while steps < collecting_steps:
@@ -117,29 +114,25 @@ def train(episodes, trainer, alea, collecting=False, snapshot=5000):
             while not done:
                 steps += 1
                 action = g.get_random_action()
-                next_state, reward, done = g.move(action, steps)
-                trainer.remember(state, action, steps, reward, next_state, done)
+                next_state, reward, done = g.move(action)
+                trainer.remember(state, action, reward, next_state, done)
                 state = next_state
-                if steps > 70:
-                    break
 
     print("Starting training")  
     global_counter = 0
     for e in range(episodes+1):
-        state = g.reset()
+        state = g.generate_game()
         score = 0
         done = False
         steps = 0
-
         while not done:
             steps += 1
             global_counter += 1
             action = trainer.get_best_action(state)
             trainer.decay_epsilon()
-            next_state, reward, done = g.move(action, steps)
-            trainer.remember(state, action, steps, reward, next_state, done)
+            next_state, reward, done = g.move(action)
             score += reward
-              # ici on enregistre le sample dans la mémoire
+            trainer.remember(state, action, reward, next_state, done)  # ici on enregistre le sample dans la mémoire
             state = next_state
             if global_counter % 100 == 0:
                 l = trainer.replay(batch_size)   # ici on lance le 'replay', c'est un entrainement du réseau
@@ -147,9 +140,8 @@ def train(episodes, trainer, alea, collecting=False, snapshot=5000):
             if done:
                 scores.append(score)
                 epsilons.append(trainer.epsilon)
-            if steps > 70:
+            if steps > 50:
                 break
-        #if e % 200 == 0:
         print("episode: {}/{}, moves: {}, score: {}, epsilon: {}, loss: {}"
               .format(e, episodes, steps, score, trainer.epsilon, losses[-1]))
         if e > 0 and e % snapshot == 0:
@@ -159,7 +151,7 @@ def train(episodes, trainer, alea, collecting=False, snapshot=5000):
 def main():
   #print(device_lib.list_local_devices())
   trainer = Trainer(learning_rate=0.01, epsilon_decay=0.999995)
-  scores, losses, epsilons = train(2500, trainer, False, True, snapshot=100)
+  scores, losses, epsilons = train(10000, trainer, True, False, snapshot=100)
   
 if __name__== "__main__":
   main()

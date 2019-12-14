@@ -121,6 +121,7 @@ int** newPlat(int sizeX, int sizeY, int random)
 	}
 	else
 	{
+		cont = 1;
 		for (int i = 0; i < sizeX; i++)
 		{
 			for (int l = 0; l < sizeY; l++)
@@ -129,6 +130,7 @@ int** newPlat(int sizeX, int sizeY, int random)
 				cont++;
 			}
 		}
+		plat[3][3] = 0;
 	}
 
 	return plat;
@@ -139,10 +141,15 @@ void validateMove(int cursX, int cursY, int cursX2, int cursY2, int** plat, Item
 {
 	int test = plat[cursX][cursY] == 0 || plat[cursX2][cursY2] == 0;
 	SDL_Texture* tempT = NULL;
+	SDL_Texture* tempTas = NULL;
 	int tempH = 0, tempW = 0;
 
 	if (abs(cursX - cursX2) == 1 && abs(cursY - cursY2) == 0 && test)
 	{
+		tempTas = surface[cursX][cursY].texture;
+		surface[cursX][cursY].texture = surface[cursX2][cursY2].texture;
+		surface[cursX2][cursY2].texture = tempTas;
+
 		int temp = plat[cursX][cursY];
 		plat[cursX][cursY] = plat[cursX2][cursY2];
 		plat[cursX2][cursY2] = temp;
@@ -164,11 +171,13 @@ void validateMove(int cursX, int cursY, int cursX2, int cursY2, int** plat, Item
 
 		text[cursX2 * dim + cursY2].dest.x = (int)(surface[cursX2][cursY2].dest.x + (surface[cursX2][cursY2].dest.w / 2) - (text[cursX2 * dim + cursY2].dest.w / 2));
 		text[cursX2 * dim + cursY2].dest.y = (int)(surface[cursX2][cursY2].dest.y + (surface[cursX2][cursY2].dest.h / 2) - (text[cursX2 * dim + cursY2].dest.h / 2));
-
-		//Fix for non convervative REC
 	}
 	else if (abs(cursX - cursX2) == 0 && abs(cursY - cursY2) == 1 && test)
 	{
+		tempTas = surface[cursX][cursY].texture;
+		surface[cursX][cursY].texture = surface[cursX2][cursY2].texture;
+		surface[cursX2][cursY2].texture = tempTas;
+
 		int temp = plat[cursX][cursY];
 		plat[cursX][cursY] = plat[cursX2][cursY2];
 		plat[cursX2][cursY2] = temp;
